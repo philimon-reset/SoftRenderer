@@ -5,7 +5,9 @@
 //-----------------------------------------------------------------------
 namespace SoftRenderer.Client
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Windows.Forms;
     using SoftRenderer.Engine;
     using SoftRenderer.Engine.Render;
@@ -26,9 +28,26 @@ namespace SoftRenderer.Client
             var size = new System.Drawing.Size(720, 480);
             var renderHost = new[]
             {
-                CreateRenderBaseForm(size, "Rasterizer"),
+                CreateRenderBaseForm(size, "0: Form"),
             };
             return renderHost;
+        }
+
+        /// <summary>
+        /// create a list of renderbases each defined to forms.
+        /// </summary>
+        /// <param name="amount">number of renderbases to seed.</param>
+        /// <returns> List of renderbases. </returns>
+        public static IReadOnlyList<IRenderBase> RenderBaseSeed(int amount)
+        {
+            var size = new System.Drawing.Size(720, 480);
+            RenderBase[] renderBases = new RenderBase[amount];
+            for (int i = 1; i <= amount; i++)
+            {
+                renderBases.Append(CreateRenderBaseForm(size, $"{i}: Form"));
+            }
+
+            return renderBases;
         }
 
         /// <summary>
@@ -38,29 +57,47 @@ namespace SoftRenderer.Client
         /// <param name="title">title of form.</param>
         private static IRenderBase CreateRenderBaseForm(System.Drawing.Size size, string title)
         {
-            var window = new System.Windows.Forms.Form
+            var window = new Form
             {
                 Size = size,
                 Text = title,
             };
 
-            var hostControl = new System.Windows.Forms.Panel
+            var hostControl = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.Transparent,
+                BackColor = System.Drawing.Color.MediumPurple,
                 ForeColor = System.Drawing.Color.Transparent,
             };
-            hostControl.MouseEnter += (sender, args) =>
-            {
-                if (System.Windows.Forms.Form.ActiveForm != window) { window.Activate(); };
-                if (!hostControl.Focused) { hostControl.Focus(); };
-            };
-            window.FormClosed += (sender, args) =>
-            {
-                System.Windows.Application.Current.Shutdown();
-            };
+            window.Controls.Add(hostControl);
+            hostControl.MouseEnter += OnMouseEnter(window, hostControl);
+            window.Closed += OnWindowClosed();
             window.Show();
             return new RenderBase(hostControl.Handle);
+        }
+
+        private static EventHandler OnWindowClosed()
+        {
+            return (sender, args) =>
+            {
+                System.Windows.Application.Current?.Shutdown();
+            };
+        }
+
+        private static EventHandler OnMouseEnter(Form window, Panel hostControl)
+        {
+            return (sender, args) =>
+            {
+                if (Form.ActiveForm != window)
+                {
+                    window.Activate();
+                }
+
+                if (!hostControl.Focused)
+                {
+                    hostControl.Focus();
+                }
+            };
         }
     }
 }

@@ -5,22 +5,16 @@
 //-----------------------------------------------------------------------
 namespace SoftRendererForm
 {
-    using SoftRenderer.Client;
-    using SoftRenderer.Engine;
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel;
-    using System.Data;
-    using System.Drawing;
-    using System.Linq;
-    using System.Text;
-    using System.Threading.Tasks;
     using System.Windows.Forms;
+    using SoftRenderer.Client;
+    using SoftRenderer.Engine;
 
     /// <summary>
     /// soft renderer form window.
     /// </summary>
-    public partial class SoftRendererForm : Form
+    public partial class SoftRendererForm : Form, IDisposable
     {
         #pragma warning disable SA1642
         /// <summary>
@@ -29,27 +23,39 @@ namespace SoftRendererForm
         public SoftRendererForm()
         {
             this.InitializeComponent();
-            //this.RenderBases = WindowFactory.RenderBaseSeed();
+            this.RenderBases = WindowFactory.RenderBaseSeed(2);
         }
 
         /// <summary>
         /// Gets or sets renderBase list.
         /// </summary>
-        //public IReadOnlyList<IRenderBase> RenderBases { get; set; }
+        private IReadOnlyList<IRenderBase> RenderBases { get; set; }
+
+        /// <summary>
+        /// Dispose RenderBases and set RenderBases list as default.
+        /// </summary>
+        public new void Dispose()
+        {
+            foreach (var item in this.RenderBases)
+            {
+                item.Dispose();
+            }
+
+            this.RenderBases = default;
+        }
 
         private void SoftRendererForm_Load(object sender, EventArgs e)
         {
-            new System.Windows.Window().Show();
         }
 
         private void SoftRendererForm_Paint(object sender, PaintEventArgs e)
         {
-            Graphics g = e.Graphics;
-            Brush b = new SolidBrush(Color.Cyan);
-            for (int i = 0; i < 100; i++)
-            {
-                g.FillRectangle(b, i, i, 1, 1);
-            }
+            // Graphics g = e.Graphics;
+            // Brush b = new SolidBrush(Color.Cyan);
+            // for (int i = 0; i < 100; i++)
+            // {
+            //     g.FillRectangle(b, i, i, 1, 1);
+            // }
         }
     }
 }

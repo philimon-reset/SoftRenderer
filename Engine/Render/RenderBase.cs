@@ -16,9 +16,9 @@ namespace SoftRenderer.Engine.Render
     public class RenderBase : IRenderBase
     {
         /// <summary>
-        /// Constructor for RenderBase.
+        /// Initialize the <see cref="RenderBase"/> class.
         /// </summary>
-        /// <param name="hosthandle"> Given host handle </param>
+        /// <param name="hosthandle"> Given host handle. </param>
         public RenderBase(IntPtr hosthandle)
         {
             this.HostHandle = hosthandle;
