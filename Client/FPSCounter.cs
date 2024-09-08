@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="FPSCounter.cs" company="CompanyName">
+// <copyright file="FPSCounter.cs" company="SoftEngine">
 //     Company copyright tag.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -74,6 +74,9 @@ namespace SoftRenderer.Client.FPSCounter
             }
         }
 
+        /// <summary>
+        /// dispose function for rasterizer.
+        /// </summary>
         public void Dispose()
         {
             this.SWUpdate.Stop();

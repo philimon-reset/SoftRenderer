@@ -1,17 +1,16 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="RayTracer.cs" company="CompanyName">
+// <copyright file="RayTracer.cs" company="SoftEngine">
 //     Company copyright tag.
 // </copyright>
 //-----------------------------------------------------------------------
 namespace SoftRenderer.Engine.RayTracer
 {
     using System;
-    using System.Drawing;
 
     /// <summary>
     /// RayTracer Render Port.
     /// </summary>
-    public class RayTracer : Engine.Render.RenderBase
+    public class RayTracer : Render.RenderBase
     {
         /// <summary>
         /// Raytracing Render constructor.
@@ -20,18 +19,14 @@ namespace SoftRenderer.Engine.RayTracer
         public RayTracer(IntPtr hosthandle)
     : base(hosthandle)
         {
-            this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
         }
 
-        private Graphics GraphicsHandle { get; set; }
-
         /// <summary>
-        /// Sets graphics handle to defualt.
+        /// dispose function for ray tracer.
         /// </summary>
         public override void Dispose()
         {
-            this.GraphicsHandle.Dispose();
-            this.GraphicsHandle = default;
+            base.Dispose();
         }
     }
 }

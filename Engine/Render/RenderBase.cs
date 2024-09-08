@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="RenderBase.cs" company="CompanyName">
+// <copyright file="RenderBase.cs" company="SoftEngine">
 //     Company copyright tag.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -8,6 +8,7 @@ namespace SoftRenderer.Engine.Render
     using System;
     using System.Drawing;
     using SoftRenderer.Client.FPSCounter;
+    using SoftRenderer.Utility.Util;
 
     /// <summary>
     /// Represents a vector in three-dimensional space.
@@ -27,8 +28,14 @@ namespace SoftRenderer.Engine.Render
             this.HostHandle = hosthandle;
             this.RendererFps = new FPSCounter(TimeSpan.FromSeconds(0.5));
             this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
+            this.CurrentBuffer = BufferedGraphicsManager.Current.Allocate(this.GraphicsHandle, new Rectangle(Point.Empty, Util.GetClientRectangle(this.HostHandle).Size));
             this.FpsFont = new Font("Arial", 12);
         }
+
+        /// <summary>
+        /// gets Double buffer handle.
+        /// </summary>
+        private BufferedGraphics CurrentBuffer { get; set; }
 
         /// <summary>
         /// Gets Handle for the windows form.
@@ -41,9 +48,9 @@ namespace SoftRenderer.Engine.Render
         public FPSCounter RendererFps { get; private set; }
 
         /// <summary>
-        /// Gets graphics instance handle.
+        /// gets graphics instance handle.
         /// </summary>
-        protected Graphics GraphicsHandle { get; set; }
+        public Graphics GraphicsHandle { get; set; }
 
         private Font FpsFont { get; set; }
 
@@ -53,8 +60,12 @@ namespace SoftRenderer.Engine.Render
         public virtual void Dispose()
         {
             this.GraphicsHandle.Dispose();
+            this.CurrentBuffer.Dispose();
             this.RendererFps.Dispose();
+            this.FpsFont.Dispose();
+            this.FpsFont = default;
             this.GraphicsHandle = default;
+            this.CurrentBuffer = default;
             this.RendererFps = default;
             this.HostHandle = default;
         }
@@ -75,17 +86,10 @@ namespace SoftRenderer.Engine.Render
         /// </summary>
         public void RenderInternal()
         {
-            this.GraphicsHandle.Clear(Color.Black);
-            this.GraphicsHandle.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.OrangeRed, 0, 0);
-        }
+            this.CurrentBuffer.Graphics.Clear(Color.Black);
+            this.CurrentBuffer.Graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.OrangeRed, 0, 0);
 
-        /// <summary>
-        /// checks if form is active.
-        /// </summary>
-        /// <returns>true if host handle for form is not set to default.</returns>
-        public bool IsActive()
-        {
-            return this.HostHandle != IntPtr.Zero;
+            this.CurrentBuffer.Render();
         }
     }
 }

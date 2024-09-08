@@ -1,11 +1,14 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="WindowFactory.cs" company="CompanyName">
+// <copyright file="WindowFactory.cs" company="SoftEngine">
 //     Company copyright tag.
 // </copyright>
 //-----------------------------------------------------------------------
 namespace SoftRenderer.Client.WindowFactory
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
+    using System.Runtime.InteropServices;
     using System.Windows.Forms;
     using SoftRenderer.Engine;
     using SoftRenderer.Engine.Rasterizer;
@@ -55,7 +58,7 @@ namespace SoftRenderer.Client.WindowFactory
             var hostControl = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.MediumPurple,
+                BackColor = System.Drawing.Color.Transparent,
                 ForeColor = System.Drawing.Color.Transparent,
             };
             window.Controls.Add(hostControl);

@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="IRenderBase.cs" company="CompanyName">
+// <copyright file="IRenderBase.cs" company="SoftEngine">
 //     Company copyright tag.
 // </copyright>
 //-----------------------------------------------------------------------

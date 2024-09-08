@@ -1,5 +1,5 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="Rasterizer.cs" company="CompanyName">
+// <copyright file="Rasterizer.cs" company="SoftEngine">
 //     Company copyright tag.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -10,7 +10,7 @@ namespace SoftRenderer.Engine.Rasterizer
     /// <summary>
     /// Rasterizer Render Port.
     /// </summary>
-    public class Rasterizer : Engine.Render.RenderBase
+    public class Rasterizer : Render.RenderBase
     {
         /// <summary>
         /// Rasterization Render constructor.
@@ -22,12 +22,11 @@ namespace SoftRenderer.Engine.Rasterizer
         }
 
         /// <summary>
-        /// Sets graphics handle to defualt.
+        /// dispose function for rasterizer.
         /// </summary>
         public override void Dispose()
         {
-            this.GraphicsHandle.Dispose();
-            this.GraphicsHandle = default;
+            base.Dispose();
         }
     }
 }
