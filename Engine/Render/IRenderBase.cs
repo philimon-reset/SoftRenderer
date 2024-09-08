@@ -16,5 +16,15 @@ namespace SoftRenderer.Engine
         /// Gets Handle for the windows form.
         /// </summary>
         IntPtr HostHandle { get; }
+
+        /// <summary>
+        /// Render the current frame for current rendering techinque.
+        /// </summary>
+        void Render();
+
+        /// <summary>
+        /// Initalize common rendering steps.
+        /// </summary>
+        void RenderInternal();
     }
 }
