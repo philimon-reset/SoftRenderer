@@ -7,7 +7,7 @@ namespace SoftRenderer
 {
     using System;
     using System.Windows.Forms;
-    using SoftRendererForm;
+    using SoftRenderer.Client.SoftRendererForm;
 
     /// <summary>
     /// main entry function.

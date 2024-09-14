@@ -6,9 +6,6 @@
 namespace SoftRenderer.Client.WindowFactory
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
-    using System.Runtime.InteropServices;
     using System.Windows.Forms;
     using SoftRenderer.Engine;
     using SoftRenderer.Engine.Rasterizer;
@@ -58,7 +55,7 @@ namespace SoftRenderer.Client.WindowFactory
             var hostControl = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.Transparent,
+                BackColor = System.Drawing.Color.MediumPurple,
                 ForeColor = System.Drawing.Color.Transparent,
             };
             window.Controls.Add(hostControl);

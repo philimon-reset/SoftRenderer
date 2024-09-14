@@ -28,14 +28,10 @@ namespace SoftRenderer.Engine.Render
             this.HostHandle = hosthandle;
             this.RendererFps = new FPSCounter(TimeSpan.FromSeconds(0.5));
             this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
-            this.CurrentBuffer = BufferedGraphicsManager.Current.Allocate(this.GraphicsHandle, new Rectangle(Point.Empty, Util.GetClientRectangle(this.HostHandle).Size));
+            this.ClientRectange = new Rectangle(Point.Empty, Util.GetClientRectangle(this.HostHandle).Size);
+            this.CurrentBuffer = BufferedGraphicsManager.Current.Allocate(this.GraphicsHandle, this.ClientRectange);
             this.FpsFont = new Font("Arial", 12);
         }
-
-        /// <summary>
-        /// gets Double buffer handle.
-        /// </summary>
-        private BufferedGraphics CurrentBuffer { get; set; }
 
         /// <summary>
         /// Gets Handle for the windows form.
@@ -53,6 +49,12 @@ namespace SoftRenderer.Engine.Render
         public Graphics GraphicsHandle { get; set; }
 
         private Font FpsFont { get; set; }
+        /// <summary>
+        /// Gets Double buffer handle.
+        /// </summary>
+        private BufferedGraphics CurrentBuffer { get; set; }
+
+        private Rectangle ClientRectange { get; set; }
 
         /// <summary>
         /// Sets host handle as default.

@@ -6,9 +6,12 @@
 namespace SoftRenderer.Utility.Util
 {
     using System;
-    using System.Windows;
-    using SoftRenderer.Client.Win32.DLL;
+    using System.Drawing;
+    using SoftRenderer.Utility.Win32;
 
+    /// <summary>
+    /// Utility functions for managing the view ports.
+    /// </summary>
     public static class Util
     {
         /// <summary>
@@ -16,11 +19,11 @@ namespace SoftRenderer.Utility.Util
         /// </summary>
         /// <param name="handle">form handle.</param>
         /// <returns> a new rectangle representing the given form handle.</returns>
-        public static System.Drawing.Rectangle GetClientRectangle(IntPtr handle)
+        public static Rectangle GetClientRectangle(IntPtr handle)
         {
             DLL.ClientToScreen(handle, out Point point);
-            DLL.GetClientRect(handle, out Rect rect);
-            return new System.Drawing.Rectangle((int)point.X, (int)point.Y, (int)(rect.Right - rect.Left), (int)(rect.Bottom - rect.Top));
+            DLL.GetClientRect(handle, out Rectangle rect);
+            return new Rectangle(point.X, point.Y, rect.Right - rect.Left, rect.Bottom - rect.Top);
         }
     }
 }
