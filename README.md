@@ -34,8 +34,8 @@ This project is a 3D rendering engine implemented in pure C#, which supports bot
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/philimon-reset/3D-Renderer.git
-    cd 3D-Renderer
+    git clone https://github.com/philimon-reset/SoftRenderer.git
+    cd SoftRenderer
     ```
 
 2. Restore the .NET packages:
