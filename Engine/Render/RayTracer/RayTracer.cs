@@ -5,7 +5,7 @@
 //-----------------------------------------------------------------------
 namespace SoftRenderer.Engine.RayTracer
 {
-    using System;
+    using SoftRenderer.Engine.Render;
 
     /// <summary>
     /// RayTracer Render Port.
@@ -13,11 +13,12 @@ namespace SoftRenderer.Engine.RayTracer
     public class RayTracer : Render.RenderBase
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="RayTracer"/> class.
         /// Raytracing Render constructor.
         /// </summary>
-        /// <param name="hosthandle">handle for form.</param>
-        public RayTracer(IntPtr hosthandle)
-    : base(hosthandle)
+        /// <param name="renderBaseArgs">handle for form.</param>
+        public RayTracer(IRenderBaseArgs renderBaseArgs)
+    : base(renderBaseArgs)
         {
         }
 

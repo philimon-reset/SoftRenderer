@@ -7,6 +7,7 @@ namespace SoftRenderer.Utility.Util
 {
     using System;
     using System.Drawing;
+    using System.Windows.Forms;
     using SoftRenderer.Utility.Win32;
 
     /// <summary>
@@ -24,6 +25,26 @@ namespace SoftRenderer.Utility.Util
             DLL.ClientToScreen(handle, out Point point);
             DLL.GetClientRect(handle, out Rectangle rect);
             return new Rectangle(point.X, point.Y, rect.Right - rect.Left, rect.Bottom - rect.Top);
+        }
+
+        /// <summary>
+        /// get handler for form.
+        /// </summary>
+        /// <param name="window">window form control.</param>
+        /// <returns>handle of form.</returns>
+        public static IntPtr Handle(System.Windows.Forms.Control window)
+        {
+            return window.IsDisposed ? default : window.Handle;
+        }
+
+        /// <summary>
+        /// Get form from handle.
+        /// </summary>
+        /// <param name="handle">handle of form.</param>
+        /// <returns>form instance.</returns>
+        public static Control GetForm(IntPtr handle)
+        {
+            return handle == IntPtr.Zero ? default : Control.FromHandle(handle);
         }
     }
 }

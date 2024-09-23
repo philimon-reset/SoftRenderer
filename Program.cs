@@ -7,7 +7,7 @@ namespace SoftRenderer
 {
     using System;
     using System.Windows.Forms;
-    using SoftRenderer.Client.SoftRendererForm;
+    using SoftRenderer.Client;
 
     /// <summary>
     /// main entry function.
@@ -22,7 +22,7 @@ namespace SoftRenderer
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new SoftRendererForm());
+            var test = new SoftRendererForm();
         }
     }
 }

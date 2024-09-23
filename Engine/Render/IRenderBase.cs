@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="IRenderBase.cs" company="SoftEngine">
-//     Company copyright tag.
+// <copyright file="IRenderBase.cs" company="SoftRenderer">
+// Copyright (c) SoftRenderer. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 namespace SoftRenderer.Engine

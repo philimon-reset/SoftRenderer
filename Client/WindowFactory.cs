@@ -1,15 +1,20 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="WindowFactory.cs" company="SoftEngine">
-//     Company copyright tag.
+// <copyright file="WindowFactory.cs" company="SoftRenderer">
+//     SoftRenderer.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace SoftRenderer.Client.WindowFactory
+
+using SoftRenderer.Engine.Render.Canvas;
+
+namespace SoftRenderer.Client
 {
     using System;
     using System.Windows.Forms;
     using SoftRenderer.Engine;
+    using SoftRenderer.Engine.Input;
     using SoftRenderer.Engine.Rasterizer;
     using SoftRenderer.Engine.RayTracer;
+    using SoftRenderer.Engine.Render;
 
     /// <summary>
     /// Creates windows for renderbase.
@@ -28,12 +33,16 @@ namespace SoftRenderer.Client.WindowFactory
             IRenderBase renderBase;
             if (type == 0)
             {
-                renderBase = CreateRenderBaseForm(size, "Rasterizer", (x) => new Rasterizer(x));
+                renderBase = CreateRenderBaseForm(size, "Rasterizer", (rba) => new Rasterizer(rba));
+            }
+            else if (type == 1)
+            {
+                // TODO: Create ray tracer viewport
+                renderBase = CreateRenderBaseForm(size, "RayTracer", (rba) => new RayTracer(rba));
             }
             else
             {
-                // TODO: Create ray tracer viewport
-                renderBase = CreateRenderBaseForm(size, "RayTracer", (x) => new RayTracer(x));
+                renderBase = CreateRenderBaseForm(size, "Canvas", (rba) => new Canvas(rba));
             }
 
             return (T)Convert.ChangeType(renderBase, typeof(T));
@@ -44,7 +53,8 @@ namespace SoftRenderer.Client.WindowFactory
         /// </summary>
         /// <param name="size">size of form.</param>
         /// <param name="title">title of form.</param>
-        private static T CreateRenderBaseForm<T>(System.Drawing.Size size, string title, Func<IntPtr, T> createRenderBase)
+        /// <param name="createRenderBase"> Helper func to instanciate renderbase.</param>
+        private static T CreateRenderBaseForm<T>(System.Drawing.Size size, string title, Func<IRenderBaseArgs, T> createRenderBase)
         {
             var window = new Form
             {
@@ -62,7 +72,7 @@ namespace SoftRenderer.Client.WindowFactory
             hostControl.MouseEnter += OnMouseEnter(window, hostControl);
             window.Closed += OnWindowClosed();
             window.Show();
-            return createRenderBase(hostControl.Handle);
+            return createRenderBase(new RenderBaseArgs(hostControl.Handle, new InputPaint(hostControl)));
         }
 
         private static EventHandler OnWindowClosed()

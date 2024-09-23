@@ -5,6 +5,7 @@
 //-----------------------------------------------------------------------
 namespace SoftRenderer.Engine.Rasterizer
 {
+    using SoftRenderer.Engine.Render;
     using System;
 
     /// <summary>
@@ -13,20 +14,13 @@ namespace SoftRenderer.Engine.Rasterizer
     public class Rasterizer : Render.RenderBase
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="Rasterizer"/> class.
         /// Rasterization Render constructor.
         /// </summary>
-        /// <param name="hosthandle">handle for form.</param>
-        public Rasterizer(IntPtr hosthandle)
-    : base(hosthandle)
+        /// <param name="renderBaseArgs">dto that hold form handles.</param>
+        public Rasterizer(IRenderBaseArgs renderBaseArgs)
+    : base(renderBaseArgs)
         {
-        }
-
-        /// <summary>
-        /// dispose function for rasterizer.
-        /// </summary>
-        public override void Dispose()
-        {
-            base.Dispose();
         }
     }
 }

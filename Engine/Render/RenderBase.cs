@@ -7,7 +7,9 @@ namespace SoftRenderer.Engine.Render
 {
     using System;
     using System.Drawing;
+    using System.Windows.Forms;
     using SoftRenderer.Client.FPSCounter;
+    using SoftRenderer.Engine.Input;
     using SoftRenderer.Utility.Util;
 
     /// <summary>
@@ -20,15 +22,17 @@ namespace SoftRenderer.Engine.Render
     {
 
         /// <summary>
-        /// Initialize the <see cref="RenderBase"/> class.
+        /// Initializes a new instance of the <see cref="RenderBase"/> class.
         /// </summary>
-        /// <param name="hosthandle"> Given host handle. </param>
-        public RenderBase(IntPtr hosthandle)
+        /// <param name="renderBaseArgs"> Given host handle. </param>
+        public RenderBase(IRenderBaseArgs renderBaseArgs)
         {
-            this.HostHandle = hosthandle;
+            this.HostHandle = renderBaseArgs.HostHandle;
+            this.HostInput = renderBaseArgs.Input;
+            this.FormControl = Util.GetForm(this.HostHandle);
             this.RendererFps = new FPSCounter(TimeSpan.FromSeconds(0.5));
             this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
-            this.ClientRectange = new Rectangle(Point.Empty, Util.GetClientRectangle(this.HostHandle).Size);
+            this.ClientRectange = new Rectangle(Point.Empty, this.FormControl.Size);
             this.CurrentBuffer = BufferedGraphicsManager.Current.Allocate(this.GraphicsHandle, this.ClientRectange);
             this.FpsFont = new Font("Arial", 12);
         }
@@ -39,18 +43,29 @@ namespace SoftRenderer.Engine.Render
         public IntPtr HostHandle { get; private set; }
 
         /// <summary>
+        /// Gets input handle for form.
+        /// </summary>
+        public IInput HostInput { get; private set; }
+
+        /// <summary>
+        /// Gets form control from host handle.
+        /// </summary>
+        public Control FormControl { get; private set; }
+
+        /// <summary>
         /// Gets total fps data.
         /// </summary>
         public FPSCounter RendererFps { get; private set; }
 
         /// <summary>
-        /// gets graphics instance handle.
+        /// Gets or sets graphics instance handle.
         /// </summary>
         public Graphics GraphicsHandle { get; set; }
 
         private Font FpsFont { get; set; }
+
         /// <summary>
-        /// Gets Double buffer handle.
+        /// Gets or sets double buffer handle.
         /// </summary>
         private BufferedGraphics CurrentBuffer { get; set; }
 
@@ -65,11 +80,13 @@ namespace SoftRenderer.Engine.Render
             this.CurrentBuffer.Dispose();
             this.RendererFps.Dispose();
             this.FpsFont.Dispose();
+            this.HostInput.Dispose();
             this.FpsFont = default;
             this.GraphicsHandle = default;
             this.CurrentBuffer = default;
             this.RendererFps = default;
             this.HostHandle = default;
+            this.HostInput = default;
         }
 
 

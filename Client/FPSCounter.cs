@@ -1,6 +1,6 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="FPSCounter.cs" company="SoftEngine">
-//     Company copyright tag.
+// <copyright file="FPSCounter.cs" company="SoftRenderer">
+// Copyright (c) SoftRenderer. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 namespace SoftRenderer.Client.FPSCounter
@@ -14,7 +14,8 @@ namespace SoftRenderer.Client.FPSCounter
     public class FPSCounter : IDisposable
     {
         /// <summary>
-        /// constructor to count frames.
+        /// Initializes a new instance of the <see cref="FPSCounter"/> class.
+        /// Constructor to count frames.
         /// </summary>
         /// <param name="frameRate">choosen frame rate.</param>
         public FPSCounter(TimeSpan frameRate)
