@@ -27,10 +27,9 @@ namespace SoftRenderer.Client
         /// </summary>
         public SoftRendererForm()
         {
-            // this.RasterBase = WindowFactory.RenderBaseSeed<Rasterizer>(0);
-            // this.RayTraceBase = WindowFactory.RenderBaseSeed<RayTracer>(1);
-            this.CanvasBase = WindowFactory.RenderBaseSeed<Canvas>(2);
-            this.RenderBases = new IRenderBase[] { this.CanvasBase };
+            this.RasterBase = WindowFactory.RenderBaseSeed<Rasterizer>(0);
+            this.RayTraceBase = WindowFactory.RenderBaseSeed<RayTracer>(1);
+            this.RenderBases = new IRenderBase[] { this.RayTraceBase, this.RasterBase };
             while (Application.OpenForms.Count >= 1)
             {
                 this.Render();

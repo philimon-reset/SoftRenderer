@@ -33,16 +33,16 @@ namespace SoftRenderer.Client
             IRenderBase renderBase;
             if (type == 0)
             {
-                renderBase = CreateRenderBaseForm(size, "Rasterizer", (rba) => new Rasterizer(rba));
+                renderBase = CreateRenderBaseForm(size, "Rasterizer", (hostControl) => new Rasterizer(new RenderBaseArgs(hostControl.Handle, new InputControl(hostControl))));
             }
             else if (type == 1)
             {
                 // TODO: Create ray tracer viewport
-                renderBase = CreateRenderBaseForm(size, "RayTracer", (rba) => new RayTracer(rba));
+                renderBase = CreateRenderBaseForm(size, "RayTracer", (hostControl) => new RayTracer(new RenderBaseArgs(hostControl.Handle, new InputControl(hostControl))));
             }
             else
             {
-                renderBase = CreateRenderBaseForm(size, "Canvas", (rba) => new Canvas(rba));
+                renderBase = CreateRenderBaseForm(size, "Canvas", (hostControl) => new Canvas(new RenderBaseArgs(hostControl.Handle, new InputPaint(hostControl))));
             }
 
             return (T)Convert.ChangeType(renderBase, typeof(T));
@@ -54,7 +54,7 @@ namespace SoftRenderer.Client
         /// <param name="size">size of form.</param>
         /// <param name="title">title of form.</param>
         /// <param name="createRenderBase"> Helper func to instanciate renderbase.</param>
-        private static T CreateRenderBaseForm<T>(System.Drawing.Size size, string title, Func<IRenderBaseArgs, T> createRenderBase)
+        private static T CreateRenderBaseForm<T>(System.Drawing.Size size, string title, Func<Control, T> createRenderBase)
         {
             var window = new Form
             {
@@ -72,7 +72,7 @@ namespace SoftRenderer.Client
             hostControl.MouseEnter += OnMouseEnter(window, hostControl);
             window.Closed += OnWindowClosed();
             window.Show();
-            return createRenderBase(new RenderBaseArgs(hostControl.Handle, new InputPaint(hostControl)));
+            return createRenderBase(hostControl);
         }
 
         private static EventHandler OnWindowClosed()

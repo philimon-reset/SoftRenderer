@@ -67,7 +67,7 @@ namespace SoftRenderer.Engine.Render
         /// <summary>
         /// Gets or sets double buffer handle.
         /// </summary>
-        private BufferedGraphics CurrentBuffer { get; set; }
+        protected BufferedGraphics CurrentBuffer { get; set; }
 
         private Rectangle ClientRectange { get; set; }
 
@@ -93,7 +93,7 @@ namespace SoftRenderer.Engine.Render
         /// <summary>
         /// Render the current frame for current rendering techinque.
         /// </summary>
-        public void Render()
+        public virtual void Render()
         {
             this.RendererFps.StartFrame();
             this.RenderInternal();
@@ -101,12 +101,12 @@ namespace SoftRenderer.Engine.Render
         }
 
         /// <summary>
-        /// Initalize common rendering steps.
+        /// Initialize common rendering steps.
         /// </summary>
         public void RenderInternal()
         {
             this.CurrentBuffer.Graphics.Clear(Color.Black);
-            this.CurrentBuffer.Graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.OrangeRed, 0, 0);
+            this.CurrentBuffer.Graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, 0, 0);
 
             this.CurrentBuffer.Render();
         }

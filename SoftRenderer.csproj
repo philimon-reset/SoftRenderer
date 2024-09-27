@@ -64,7 +64,7 @@
     <Compile Include="Engine\Input\Input.cs" />
     <Compile Include="Engine\Input\InputControl.cs" />
     <Compile Include="Engine\Input\InputPaint.cs" />
-    <Compile Include="Engine\Render\Canvas\canvas.cs" />
+    <Compile Include="Engine\Render\Canvas\Canvas.cs" />
     <Compile Include="Engine\Render\IRenderBaseArgs.cs" />
     <Compile Include="Engine\Render\RenderBaseArgs.cs" />
     <Compile Include="Utility\Win32\DLL.cs" />
