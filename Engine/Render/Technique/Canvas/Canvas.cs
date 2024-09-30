@@ -4,13 +4,12 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-using System.Drawing;
-using System.Windows.Forms;
-
-namespace SoftRenderer.Engine.Render.Canvas
+namespace SoftRenderer.Engine.Render.Technique.Canvas
 {
-    using SoftRenderer.Engine.Render;
     using System;
+    using System.Drawing;
+    using System.Windows.Forms;
+    using SoftRenderer.Engine.Render;
 
     /// <summary>
     /// Canvas Render Port.
@@ -36,6 +35,8 @@ namespace SoftRenderer.Engine.Render.Canvas
         public Canvas(IRenderBaseArgs renderBaseArgs)
             : base(renderBaseArgs)
         {
+            // Double buffer for rendering setup.
+            this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
             this.CurrentDrawArgs = new DrawArgs(false, Brushes.Aqua, new Random(), 1);
             this.HostInput.MouseMove += this.Draw;
             this.HostInput.MousePress += this.Click;
@@ -44,6 +45,8 @@ namespace SoftRenderer.Engine.Render.Canvas
             this.HostInput.MouseScroll += this.HandleThickness;
             this.DrawColorFont = new Font("Arial", 12);
         }
+
+        private Graphics GraphicsHandle { get; set; }
 
         /// <inheritdoc/>
         public override void Dispose()
@@ -59,7 +62,12 @@ namespace SoftRenderer.Engine.Render.Canvas
         {
           
         }
-        
+
+        public override void RenderInternal()
+        {
+            
+        }
+
         private Font DrawColorFont { get; set; }
 
         /// <summary>

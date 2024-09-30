@@ -18,13 +18,13 @@ namespace SoftRenderer.Engine
         IntPtr HostHandle { get; }
 
         /// <summary>
-        /// Render the current frame for current rendering techinque.
+        /// Initalize common rendering steps.
         /// </summary>
         void Render();
 
         /// <summary>
-        /// Initalize common rendering steps.
+        /// Render the current frame for current rendering techinque.
         /// </summary>
-        void RenderInternal();
+        abstract void RenderInternal();
     }
 }

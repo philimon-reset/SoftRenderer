@@ -3,6 +3,7 @@
 //     Company copyright tag.
 // </copyright>
 //-----------------------------------------------------------------------
+
 namespace SoftRenderer.Engine.Render
 {
     using System;
@@ -10,7 +11,8 @@ namespace SoftRenderer.Engine.Render
     using System.Windows.Forms;
     using SoftRenderer.Client.FPSCounter;
     using SoftRenderer.Engine.Input;
-    using SoftRenderer.Utility.Util;
+    using SoftRenderer.Engine.Input.EventArgs;
+    using Utility.Util;
 
     /// <summary>
     /// Represents a vector in three-dimensional space.
@@ -20,22 +22,28 @@ namespace SoftRenderer.Engine.Render
     /// </remarks>
     public abstract class RenderBase : IRenderBase
     {
-
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderBase"/> class.
         /// </summary>
         /// <param name="renderBaseArgs"> Given host handle. </param>
-        public RenderBase(IRenderBaseArgs renderBaseArgs)
+        protected RenderBase(IRenderBaseArgs renderBaseArgs)
         {
+            // Renerbase arg values.
             this.HostHandle = renderBaseArgs.HostHandle;
             this.HostInput = renderBaseArgs.Input;
+
+            // Form control of the form.
             this.FormControl = Util.GetForm(this.HostHandle);
-            this.RendererFps = new FPSCounter(TimeSpan.FromSeconds(0.5));
-            this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
-            this.ClientRectange = new Rectangle(Point.Empty, this.FormControl.Size);
-            this.CurrentBuffer = BufferedGraphicsManager.Current.Allocate(this.GraphicsHandle, this.ClientRectange);
-            this.FpsFont = new Font("Arial", 12);
+
+            // Set size of viewport and buffer.
+            this.DrawBufferSize = this.FormControl.Size;
+            this.ViewportSize = this.FormControl.Size;
+
+            // Event Hooking.
+            this.HostInput.SizeChanged += this.ScreenResize;
         }
+
+        protected Control FormControl { get; set; }
 
         /// <summary>
         /// Gets Handle for the windows form.
@@ -45,54 +53,38 @@ namespace SoftRenderer.Engine.Render
         /// <summary>
         /// Gets input handle for form.
         /// </summary>
-        public IInput HostInput { get; private set; }
+        protected IInput HostInput { get; private set; }
 
         /// <summary>
-        /// Gets form control from host handle.
+        /// Gets size of the buffer where rendering will take place.
         /// </summary>
-        public Control FormControl { get; private set; }
+        protected Size DrawBufferSize { get; private set; }
 
         /// <summary>
-        /// Gets total fps data.
+        /// Gets size of the screen. Output will be scaled to this size.
         /// </summary>
-        public FPSCounter RendererFps { get; private set; }
+        protected Size ViewportSize { get; private set; }
 
         /// <summary>
-        /// Gets or sets graphics instance handle.
+        /// Gets or sets total fps data.
         /// </summary>
-        public Graphics GraphicsHandle { get; set; }
+        protected FPSCounter RendererFps { get; set; }
 
-        private Font FpsFont { get; set; }
-
-        /// <summary>
-        /// Gets or sets double buffer handle.
-        /// </summary>
-        protected BufferedGraphics CurrentBuffer { get; set; }
-
-        private Rectangle ClientRectange { get; set; }
-
-        /// <summary>
-        /// Sets host handle as default.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual void Dispose()
         {
-            this.GraphicsHandle.Dispose();
-            this.CurrentBuffer.Dispose();
-            this.RendererFps.Dispose();
-            this.FpsFont.Dispose();
+            // Dispose Properties.
             this.HostInput.Dispose();
-            this.FpsFont = default;
-            this.GraphicsHandle = default;
-            this.CurrentBuffer = default;
-            this.RendererFps = default;
+
+            // Set properties to default.
             this.HostHandle = default;
             this.HostInput = default;
+
+            // Event dispose
+            this.HostInput!.SizeChanged -= this.ScreenResize;
         }
 
-
-        /// <summary>
-        /// Render the current frame for current rendering techinque.
-        /// </summary>
+        /// <inheritdoc/>
         public virtual void Render()
         {
             this.RendererFps.StartFrame();
@@ -100,15 +92,31 @@ namespace SoftRenderer.Engine.Render
             this.RendererFps.EndFrame();
         }
 
-        /// <summary>
-        /// Initialize common rendering steps.
-        /// </summary>
-        public void RenderInternal()
-        {
-            this.CurrentBuffer.Graphics.Clear(Color.Black);
-            this.CurrentBuffer.Graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, 0, 0);
+        /// <inheritdoc/>
+        public abstract void RenderInternal();
 
-            this.CurrentBuffer.Render();
+        /// <summary>
+        /// Resize viewport size.
+        /// </summary>
+        /// <param name="argsNewSize">New size.</param>
+        protected virtual void ResizeViewPort(Size argsNewSize)
+        {
+            this.ViewportSize = argsNewSize;
+        }
+
+        /// <summary>
+        /// Resize draw buffer size.
+        /// </summary>
+        /// <param name="argsNewSize">New size.</param>
+        protected virtual void ResizeBuffer(Size argsNewSize)
+        {
+            this.DrawBufferSize = argsNewSize;
+        }
+
+        private void ScreenResize(object sender, ISizeChangeArgs args)
+        {
+            this.ResizeBuffer(args.NewSize);
+            this.ResizeViewPort(args.NewSize);
         }
     }
 }

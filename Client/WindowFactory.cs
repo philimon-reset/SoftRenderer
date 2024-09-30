@@ -4,17 +4,16 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-using SoftRenderer.Engine.Render.Canvas;
-
 namespace SoftRenderer.Client
 {
     using System;
     using System.Windows.Forms;
     using SoftRenderer.Engine;
     using SoftRenderer.Engine.Input;
-    using SoftRenderer.Engine.Rasterizer;
-    using SoftRenderer.Engine.RayTracer;
     using SoftRenderer.Engine.Render;
+    using SoftRenderer.Engine.Render.Technique.Canvas;
+    using SoftRenderer.Engine.Render.Technique.Rasterizer;
+    using SoftRenderer.Engine.Render.Technique.RayTracer;
 
     /// <summary>
     /// Creates windows for renderbase.
@@ -77,7 +76,7 @@ namespace SoftRenderer.Client
 
         private static EventHandler OnWindowClosed()
         {
-            return (sender, args) =>
+            return (_, _) =>
             {
                 System.Windows.Application.Current?.Shutdown();
             };
@@ -85,7 +84,7 @@ namespace SoftRenderer.Client
 
         private static EventHandler OnMouseEnter(Form window, Panel hostControl)
         {
-            return (sender, args) =>
+            return (_, _) =>
             {
                 if (Form.ActiveForm != window)
                 {

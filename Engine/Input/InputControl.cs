@@ -49,8 +49,14 @@ public class InputControl : Input
     public override event KeyEventHandler KeyUp;
 
     /// <inheritdoc/>
-    public override System.Drawing.Size Size => this.FormControl.Size;
+    public override System.Drawing.Size Size
+    {
+        get => this.FormControl.Size;
+    }
 
+    /// <summary>
+    /// Gets or sets control for form.
+    /// </summary>
     protected Control FormControl { get; set; }
 
     /// <inheritdoc/>

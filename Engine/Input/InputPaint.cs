@@ -29,11 +29,6 @@ public class InputPaint : InputControl
         this.KeyDown += this.PaintKeyDown;
     }
 
-    private void PaintMouseScroll(object sender, MouseEventArgs e)
-    {
-        Console.WriteLine($@"Scroll {e.Delta}");
-    }
-
     /// <inheritdoc/>
     public override void Dispose()
     {
@@ -43,6 +38,11 @@ public class InputPaint : InputControl
         this.KeyUp -= this.PaintKeyUp;
         this.KeyDown -= this.PaintKeyDown;
         this.FormControl = default;
+    }
+
+    private void PaintMouseScroll(object sender, MouseEventArgs e)
+    {
+        Console.WriteLine($@"Scroll {e.Delta}");
     }
 
     /// <inheritdoc cref="PaintKeyDown"/>

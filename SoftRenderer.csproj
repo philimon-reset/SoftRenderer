@@ -64,14 +64,16 @@
     <Compile Include="Engine\Input\Input.cs" />
     <Compile Include="Engine\Input\InputControl.cs" />
     <Compile Include="Engine\Input\InputPaint.cs" />
-    <Compile Include="Engine\Render\Canvas\Canvas.cs" />
+    <Compile Include="Engine\Render\Driver\GDI\RenderBaseGdi.cs" />
     <Compile Include="Engine\Render\IRenderBaseArgs.cs" />
     <Compile Include="Engine\Render\RenderBaseArgs.cs" />
+    <Compile Include="Engine\Render\Technique\Canvas\Canvas.cs" />
+    <Compile Include="Engine\Render\Technique\Rasterizer\Rasterizer.cs" />
+    <Compile Include="Engine\Render\Technique\RayTracer\RayTracer.cs" />
+    <Compile Include="Utility\DrawBuffer.cs" />
     <Compile Include="Utility\Win32\DLL.cs" />
     <Compile Include="Client\WindowFactory.cs" />
     <Compile Include="Engine\Render\IRenderBase.cs" />
-    <Compile Include="Engine\Render\Rasterizer\Rasterizer.cs" />
-    <Compile Include="Engine\Render\RayTracer\RayTracer.cs" />
     <Compile Include="Engine\Render\RenderBase.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -109,6 +111,9 @@
   <ItemGroup>
     <Analyzer Include="packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Engine\Render\Technique\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

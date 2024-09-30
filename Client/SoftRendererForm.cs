@@ -5,6 +5,7 @@
 //-----------------------------------------------------------------------
 
 
+
 namespace SoftRenderer.Client
 {
     using System;
@@ -12,9 +13,9 @@ namespace SoftRenderer.Client
     using System.Windows.Forms;
     using SoftRenderer.Client;
     using SoftRenderer.Engine;
-    using SoftRenderer.Engine.Rasterizer;
-    using SoftRenderer.Engine.RayTracer;
-    using SoftRenderer.Engine.Render.Canvas;
+    using SoftRenderer.Engine.Render.Technique.Canvas;
+    using SoftRenderer.Engine.Render.Technique.Rasterizer;
+    using SoftRenderer.Engine.Render.Technique.RayTracer;
     using SoftRenderer.Utility.Win32;
 
     /// <summary>
@@ -28,8 +29,8 @@ namespace SoftRenderer.Client
         public SoftRendererForm()
         {
             this.RasterBase = WindowFactory.RenderBaseSeed<Rasterizer>(0);
-            this.RayTraceBase = WindowFactory.RenderBaseSeed<RayTracer>(1);
-            this.RenderBases = new IRenderBase[] { this.RayTraceBase, this.RasterBase };
+            // this.RayTraceBase = WindowFactory.RenderBaseSeed<RayTracer>(1);
+            this.RenderBases = new IRenderBase[] { this.RasterBase };
             while (Application.OpenForms.Count >= 1)
             {
                 this.Render();
