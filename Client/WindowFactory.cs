@@ -1,16 +1,19 @@
 ﻿//-----------------------------------------------------------------------
-// <copyright file="WindowFactory.cs" company="CompanyName">
-//     Company copyright tag.
+// <copyright file="WindowFactory.cs" company="SoftRenderer">
+//     SoftRenderer.
 // </copyright>
 //-----------------------------------------------------------------------
+
 namespace SoftRenderer.Client
 {
     using System;
-    using System.Collections.Generic;
-    using System.Linq;
     using System.Windows.Forms;
     using SoftRenderer.Engine;
+    using SoftRenderer.Engine.Input;
     using SoftRenderer.Engine.Render;
+    using SoftRenderer.Engine.Render.Technique.Canvas;
+    using SoftRenderer.Engine.Render.Technique.Rasterizer;
+    using SoftRenderer.Engine.Render.Technique.RayTracer;
 
     /// <summary>
     /// Creates windows for renderbase.
@@ -18,36 +21,30 @@ namespace SoftRenderer.Client
     public static class WindowFactory
     {
         /// <summary>
-        /// create a list of renderbases each defined to forms.
+        /// create a viewport for a specific rendering technique.
         /// </summary>
-        /// <returns>
-        /// List of renderbases.
-        /// </returns>
-        public static IReadOnlyList<IRenderBase> RenderBaseSeed()
+        /// <param name="type">technique type for rendering.</param>
+        /// <typeparam name="T">which rendering techinque return type to use.</typeparam>
+        /// <returns> a renderbase (viewport). </returns>
+        public static T RenderBaseSeed<T>(int type)
         {
             var size = new System.Drawing.Size(720, 480);
-            var renderHost = new[]
+            IRenderBase renderBase;
+            if (type == 0)
             {
-                CreateRenderBaseForm(size, "0: Form"),
-            };
-            return renderHost;
-        }
-
-        /// <summary>
-        /// create a list of renderbases each defined to forms.
-        /// </summary>
-        /// <param name="amount">number of renderbases to seed.</param>
-        /// <returns> List of renderbases. </returns>
-        public static IReadOnlyList<IRenderBase> RenderBaseSeed(int amount)
-        {
-            var size = new System.Drawing.Size(720, 480);
-            RenderBase[] renderBases = new RenderBase[amount];
-            for (int i = 1; i <= amount; i++)
+                renderBase = CreateRenderBaseForm(size, "Rasterizer", (hostControl) => new Rasterizer(new RenderBaseArgs(hostControl.Handle, new InputControl(hostControl))));
+            }
+            else if (type == 1)
             {
-                renderBases.Append(CreateRenderBaseForm(size, $"{i}: Form"));
+                // TODO: Create ray tracer viewport
+                renderBase = CreateRenderBaseForm(size, "RayTracer", (hostControl) => new RayTracer(new RenderBaseArgs(hostControl.Handle, new InputControl(hostControl))));
+            }
+            else
+            {
+                renderBase = CreateRenderBaseForm(size, "Canvas", (hostControl) => new Canvas(new RenderBaseArgs(hostControl.Handle, new InputPaint(hostControl))));
             }
 
-            return renderBases;
+            return (T)Convert.ChangeType(renderBase, typeof(T));
         }
 
         /// <summary>
@@ -55,7 +52,8 @@ namespace SoftRenderer.Client
         /// </summary>
         /// <param name="size">size of form.</param>
         /// <param name="title">title of form.</param>
-        private static IRenderBase CreateRenderBaseForm(System.Drawing.Size size, string title)
+        /// <param name="createRenderBase"> Helper func to instanciate renderbase.</param>
+        private static T CreateRenderBaseForm<T>(System.Drawing.Size size, string title, Func<Control, T> createRenderBase)
         {
             var window = new Form
             {
@@ -73,12 +71,12 @@ namespace SoftRenderer.Client
             hostControl.MouseEnter += OnMouseEnter(window, hostControl);
             window.Closed += OnWindowClosed();
             window.Show();
-            return new RenderBase(hostControl.Handle);
+            return createRenderBase(hostControl);
         }
 
         private static EventHandler OnWindowClosed()
         {
-            return (sender, args) =>
+            return (_, _) =>
             {
                 System.Windows.Application.Current?.Shutdown();
             };
@@ -86,7 +84,7 @@ namespace SoftRenderer.Client
 
         private static EventHandler OnMouseEnter(Form window, Panel hostControl)
         {
-            return (sender, args) =>
+            return (_, _) =>
             {
                 if (Form.ActiveForm != window)
                 {
