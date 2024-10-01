@@ -10,6 +10,7 @@ namespace SoftRenderer.Client
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading;
     using System.Windows.Forms;
     using SoftRenderer.Client;
     using SoftRenderer.Engine;

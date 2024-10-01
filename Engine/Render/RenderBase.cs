@@ -8,6 +8,7 @@ namespace SoftRenderer.Engine.Render
 {
     using System;
     using System.Drawing;
+    using System.Threading;
     using System.Windows.Forms;
     using SoftRenderer.Client.FPSCounter;
     using SoftRenderer.Engine.Input;
@@ -36,7 +37,7 @@ namespace SoftRenderer.Engine.Render
             this.FormControl = Util.GetForm(this.HostHandle);
 
             // Set size of viewport and buffer.
-            this.DrawBufferSize = this.FormControl.Size;
+            this.DrawBufferSize = new Size(this.FormControl.Size.Width / 10, this.FormControl.Size.Height / 10);
             this.ViewportSize = this.FormControl.Size;
 
             // Event Hooking.
@@ -56,9 +57,9 @@ namespace SoftRenderer.Engine.Render
         protected IInput HostInput { get; private set; }
 
         /// <summary>
-        /// Gets size of the buffer where rendering will take place.
+        /// Gets or sets size of the buffer where rendering will take place.
         /// </summary>
-        protected Size DrawBufferSize { get; private set; }
+        protected Size DrawBufferSize { get; set; }
 
         /// <summary>
         /// Gets size of the screen. Output will be scaled to this size.
@@ -115,7 +116,12 @@ namespace SoftRenderer.Engine.Render
 
         private void ScreenResize(object sender, ISizeChangeArgs args)
         {
-            this.ResizeBuffer(args.NewSize);
+            Size size = args.NewSize;
+            if (size.Width < 1 || size.Height < 1)
+            {
+                size = new Size(1, 1);
+            }
+            this.ResizeBuffer(new Size(size.Width / 10, size.Height / 10));
             this.ResizeViewPort(args.NewSize);
         }
     }

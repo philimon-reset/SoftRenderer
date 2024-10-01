@@ -6,6 +6,7 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
 {
     using System;
     using System.Drawing;
+    using System.Drawing.Drawing2D;
     using System.Drawing.Imaging;
     using System.Runtime.InteropServices;
     using System.Windows.Forms;
@@ -32,13 +33,16 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
 
             // Form control of the form.
             this.FormControl ??= Util.GetForm(this.HostHandle);
+            this.DrawBufferPixelFormat = PixelFormat.Format32bppArgb;
 
             // Double buffer for rendering setup.
             // Note: Buffer is the whole screen.
             this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
             this.ViewPortBufferHandle = this.GraphicsHandle.GetHdc();
-            this.CreateViewPort(this.FormControl.Size);
-            this.CreateDrawBuffer(this.FormControl.Size);
+            this.CreateViewPort(this.ViewportSize);
+
+            // Buffer size
+            this.CreateDrawBuffer(this.DrawBufferSize);
         }
 
         /// <summary>
@@ -78,6 +82,11 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         protected int DrawBufferByteArraySize { get; set; }
 
         /// <summary>
+        /// Gets pixel Format of the draw buffer.
+        /// </summary>
+        protected PixelFormat DrawBufferPixelFormat { get; }
+
+        /// <summary>
         /// Gets or sets graphics instance handle.
         /// </summary>
         private Graphics GraphicsHandle { get; set; }
@@ -86,6 +95,11 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         /// Gets or sets rectangle of the client form.
         /// </summary>
         private Rectangle ClientRectangle { get; set; }
+
+        /// <summary>
+        /// Gets or sets rectangle of the draw buffer.
+        /// </summary>
+        private Rectangle DrawBufferRectangle { get; set; }
 
         /// <inheritdoc/>
         public override void Dispose()
@@ -122,10 +136,11 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         /// </summary>
         protected void MoveToDrawBuffer()
         {
-            BitmapData drawBufferData = this.DrawBuffer.LockBits(this.ClientRectangle, ImageLockMode.WriteOnly, PixelFormat.Format24bppRgb);
+            BitmapData drawBufferData = this.DrawBuffer.LockBits(this.DrawBufferRectangle, ImageLockMode.WriteOnly, this.DrawBufferPixelFormat);
             IntPtr drawBufferPtr = drawBufferData.Scan0;
             Marshal.Copy(this.DrawBufferBytesArray, 0, drawBufferPtr, this.DrawBufferByteArraySize);
             this.DrawBuffer.UnlockBits(drawBufferData);
+            Array.Clear(this.DrawBufferBytesArray, 0, this.DrawBufferByteArraySize);
         }
 
         /// <summary>
@@ -136,7 +151,7 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         /// <returns>byte array.</returns>
         private byte[] CreateDrawBufferBytesArray(Size size)
         {
-            int bitsPerPixel = Image.GetPixelFormatSize(PixelFormat.Format24bppRgb);
+            int bitsPerPixel = Image.GetPixelFormatSize(this.DrawBufferPixelFormat);
             int widthInBits = size.Width * bitsPerPixel;
             int stride = ((widthInBits + 31) / 32) * 4;
             this.DrawBufferByteArraySize = Math.Abs(stride) * size.Height;
@@ -160,6 +175,7 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         {
             this.ClientRectangle = new Rectangle(Point.Empty, size);
             this.ViewPortBuffer = BufferedGraphicsManager.Current.Allocate(this.ViewPortBufferHandle, this.ClientRectangle);
+            this.ViewPortBuffer.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
         }
 
         /// <summary>
@@ -181,9 +197,27 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         private void CreateDrawBuffer(Size size)
         {
             // Initiate draw buffer and byte array we make changes to.
-            this.DrawBuffer = new Bitmap(size.Width, size.Height, PixelFormat.Format24bppRgb);
+            this.DrawBufferRectangle = new Rectangle(Point.Empty, this.DrawBufferSize);
+            this.DrawBuffer = new Bitmap(size.Width, size.Height, this.DrawBufferPixelFormat);
             this.DrawBufferBytesArray = this.CreateDrawBufferBytesArray(size);
             this.DrawGraphics = Graphics.FromImage(this.DrawBuffer);
+        }
+
+        public void Print2DArray()
+        {
+            int stride = this.DrawBufferByteArraySize / this.DrawBufferSize.Height;
+            for (int i = 0; i < stride; i += 3)
+            {
+                for (int j = 0; j < this.DrawBufferSize.Height; j++)
+                {
+                    int pixelIdx = (j * stride) + i;
+                    int B = this.DrawBufferBytesArray[pixelIdx];
+                    int G = this.DrawBufferBytesArray[pixelIdx + 1];
+                    int R = this.DrawBufferBytesArray[pixelIdx + 2];
+                    Console.Write($"{R},{B},{G})"); }
+                Console.WriteLine();
+            }
+            Console.WriteLine("====================");
         }
     }
 }
