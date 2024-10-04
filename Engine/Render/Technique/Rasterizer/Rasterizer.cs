@@ -27,17 +27,26 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             // this.HostInput.MouseMove += this.CaptureCoordinates;
             this.Stride = this.DrawBufferByteArraySize / this.DrawBufferSize.Height;
         }
-        
+
         private int Stride { get; set; }
 
         private void CaptureCoordinates(object sender, MouseEventArgs e)
         {
-            int pixelIdx = (e.Y * this.Stride) + e.X;
-            Console.WriteLine($"{e.X} {e.Y}");
-            int B = this.DrawBufferBytesArray[pixelIdx];
-            int G = this.DrawBufferBytesArray[pixelIdx + 1];
-            int R = this.DrawBufferBytesArray[pixelIdx + 2];
-            Console.WriteLine($"{R} {G} {B}");
+            // int pixelIdx = (e.Y * this.Stride) + e.X;
+            // Console.WriteLine($"{e.X} {e.Y}");
+            // int B = this.DrawBufferBytesArray[pixelIdx];
+            // int G = this.DrawBufferBytesArray[pixelIdx + 1];
+            // int R = this.DrawBufferBytesArray[pixelIdx + 2];
+            // Console.WriteLine($"{R} {G} {B}");
+        }
+
+        /// <inheritdoc/>
+        protected override void ResizeBuffer(Size argsNewSize)
+        {
+            base.ResizeBuffer(argsNewSize);
+            int bitsPerPixel = Image.GetPixelFormatSize(this.DrawBufferPixelFormat);
+            int widthInBits = argsNewSize.Width * bitsPerPixel;
+            this.Stride = ((widthInBits + 31) / 32) * 4;
         }
 
         /// <inheritdoc/>
@@ -57,13 +66,13 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
 
             this.MoveToDrawBuffer();
 
-            // Graphics graphics = this.DrawGraphics;
-            // graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, 0, 0);
-            // graphics.DrawString($"ViewPort: {this.ViewportSize.Width}, {this.ViewportSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 20);
-            // graphics.DrawString($"DrawBuffer: {this.DrawBufferSize.Width}, {this.DrawBufferSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 40);
+            Graphics graphics = this.DrawGraphics;
+            graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, 0, 0);
+            graphics.DrawString($"ViewPort: {this.ViewportSize.Width}, {this.ViewportSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 20);
+            graphics.DrawString($"DrawBuffer: {this.DrawBufferSize.Width}, {this.DrawBufferSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 40);
 
             // Draw bitmap to buffer
-            this.ViewPortBuffer.Graphics.DrawImage(this.DrawBuffer, new RectangleF(Point.Empty, this.ViewportSize), new RectangleF(Point.Empty, this.DrawBufferSize), GraphicsUnit.Pixel);
+            this.ViewPortBuffer.Graphics.DrawImage(this.DrawBuffer, new RectangleF(Point.Empty, this.ViewportSize), new RectangleF(new PointF(-1F, -1F), this.DrawBufferSize), GraphicsUnit.Pixel);
             this.ViewPortBuffer.Render(this.ViewPortBufferHandle);
         }
 

@@ -12,7 +12,6 @@ namespace SoftRenderer.Client
     using System.Collections.Generic;
     using System.Threading;
     using System.Windows.Forms;
-    using SoftRenderer.Client;
     using SoftRenderer.Engine;
     using SoftRenderer.Engine.Render.Technique.Canvas;
     using SoftRenderer.Engine.Render.Technique.Rasterizer;

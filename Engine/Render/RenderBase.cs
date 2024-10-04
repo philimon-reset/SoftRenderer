@@ -23,6 +23,8 @@ namespace SoftRenderer.Engine.Render
     /// </remarks>
     public abstract class RenderBase : IRenderBase
     {
+        private const int ResizeFactor = 1;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderBase"/> class.
         /// </summary>
@@ -37,7 +39,7 @@ namespace SoftRenderer.Engine.Render
             this.FormControl = Util.GetForm(this.HostHandle);
 
             // Set size of viewport and buffer.
-            this.DrawBufferSize = new Size(this.FormControl.Size.Width / 10, this.FormControl.Size.Height / 10);
+            this.DrawBufferSize = new Size(this.FormControl.Size.Width / ResizeFactor, this.FormControl.Size.Height / ResizeFactor);
             this.ViewportSize = this.FormControl.Size;
 
             // Event Hooking.
@@ -121,8 +123,9 @@ namespace SoftRenderer.Engine.Render
             {
                 size = new Size(1, 1);
             }
-            this.ResizeBuffer(new Size(size.Width / 10, size.Height / 10));
-            this.ResizeViewPort(args.NewSize);
+
+            this.ResizeBuffer(new Size(size.Width / ResizeFactor, size.Height / ResizeFactor));
+            this.ResizeViewPort(size);
         }
     }
 }
