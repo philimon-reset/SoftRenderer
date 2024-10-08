@@ -11,6 +11,7 @@ namespace SoftRenderer.Client
     using System;
     using System.Collections.Generic;
     using System.Threading;
+    using System.Threading.Tasks;
     using System.Windows.Forms;
     using SoftRenderer.Engine;
     using SoftRenderer.Engine.Render.Technique.Canvas;
@@ -28,17 +29,18 @@ namespace SoftRenderer.Client
         /// </summary>
         public SoftRendererForm()
         {
-            this.RasterBase = WindowFactory.RenderBaseSeed<Rasterizer>(0);
+            this.General = WindowFactory.RenderBaseSeed<General>(2);
             // this.RayTraceBase = WindowFactory.RenderBaseSeed<RayTracer>(1);
-            this.RenderBases = new IRenderBase[] { this.RasterBase };
+            this.RenderBases = new IRenderBase[] { this.General };
             while (Application.OpenForms.Count >= 1)
             {
                 this.Render();
+                // Thread.Sleep(1000);
                 Application.DoEvents();
             }
         }
 
-        private IEnumerable<IRenderBase> RenderBases { get; set; }
+        private IEnumerable<IRenderBase> RenderBases { get; }
 
         /// <summary>
         /// Gets or sets raster port.
@@ -54,6 +56,11 @@ namespace SoftRenderer.Client
         /// Gets or sets Canvas port.
         /// </summary>
         private Canvas CanvasBase { get; set; }
+
+        /// <summary>
+        /// Gets or sets Canvas port.
+        /// </summary>
+        private General General { get; set; }
 
         /// <summary>
         /// Render all the available bases.

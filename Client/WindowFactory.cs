@@ -39,6 +39,10 @@ namespace SoftRenderer.Client
                 // TODO: Create ray tracer viewport
                 renderBase = CreateRenderBaseForm(size, "RayTracer", (hostControl) => new RayTracer(new RenderBaseArgs(hostControl.Handle, new InputControl(hostControl))));
             }
+            else if (type == 2)
+            {
+                renderBase = CreateRenderBaseForm(size, "General", (hostControl) => new General(new RenderBaseArgs(hostControl.Handle, new InputControl(hostControl))));
+            }
             else
             {
                 renderBase = CreateRenderBaseForm(size, "Canvas", (hostControl) => new Canvas(new RenderBaseArgs(hostControl.Handle, new InputPaint(hostControl))));
@@ -64,7 +68,7 @@ namespace SoftRenderer.Client
             var hostControl = new Panel
             {
                 Dock = DockStyle.Fill,
-                BackColor = System.Drawing.Color.MediumPurple,
+                BackColor = System.Drawing.Color.Black,
                 ForeColor = System.Drawing.Color.Transparent,
             };
             window.Controls.Add(hostControl);

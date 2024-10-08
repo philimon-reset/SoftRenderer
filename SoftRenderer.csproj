@@ -68,6 +68,7 @@
     <Compile Include="Engine\Render\IRenderBaseArgs.cs" />
     <Compile Include="Engine\Render\RenderBaseArgs.cs" />
     <Compile Include="Engine\Render\Technique\Canvas\Canvas.cs" />
+    <Compile Include="Engine\Render\Technique\General\General.cs" />
     <Compile Include="Engine\Render\Technique\Rasterizer\Rasterizer.cs" />
     <Compile Include="Engine\Render\Technique\RayTracer\RayTracer.cs" />
     <Compile Include="Utility\DrawBuffer.cs" />
@@ -111,9 +112,6 @@
   <ItemGroup>
     <Analyzer Include="packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.CodeFixes.dll" />
     <Analyzer Include="packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Engine\Render\Technique\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

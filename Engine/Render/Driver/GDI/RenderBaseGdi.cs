@@ -118,9 +118,7 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         /// <inheritdoc/>
         protected override void ResizeBuffer(Size argsNewSize)
         {
-            Console.WriteLine($"In Reize: {this.DrawBufferSize}");
             base.ResizeBuffer(argsNewSize);
-            Console.WriteLine($"In Reize: {this.DrawBufferSize}");
             this.DestroyDrawBuffer();
             this.CreateDrawBuffer(argsNewSize);
         }
@@ -142,7 +140,6 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
             IntPtr drawBufferPtr = drawBufferData.Scan0;
             Marshal.Copy(this.DrawBufferBytesArray, 0, drawBufferPtr, this.DrawBufferByteArraySize);
             this.DrawBuffer.UnlockBits(drawBufferData);
-            Array.Clear(this.DrawBufferBytesArray, 0, this.DrawBufferByteArraySize);
         }
 
         /// <summary>
@@ -199,7 +196,6 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         private void CreateDrawBuffer(Size size)
         {
             // Initiate draw buffer and byte array we make changes to.
-            Console.WriteLine($"In createDraw: {size}");
             this.DrawBufferRectangle = new Rectangle(Point.Empty, size);
             this.DrawBuffer = new Bitmap(size.Width, size.Height, this.DrawBufferPixelFormat);
             this.DrawBufferBytesArray = this.CreateDrawBufferBytesArray(size);

@@ -72,7 +72,7 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             graphics.DrawString($"DrawBuffer: {this.DrawBufferSize.Width}, {this.DrawBufferSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 40);
 
             // Draw bitmap to buffer
-            this.ViewPortBuffer.Graphics.DrawImage(this.DrawBuffer, new RectangleF(Point.Empty, this.ViewportSize), new RectangleF(new PointF(-1F, -1F), this.DrawBufferSize), GraphicsUnit.Pixel);
+            this.ViewPortBuffer.Graphics.DrawImage(this.DrawBuffer, new RectangleF(Point.Empty, this.ViewportSize), new RectangleF(new PointF(-0.5F, -0.5F), this.DrawBufferSize), GraphicsUnit.Pixel);
             this.ViewPortBuffer.Render(this.ViewPortBufferHandle);
         }
 
@@ -86,7 +86,7 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
         {
             int pixelIdx = (y * this.Stride) + x;
             double t = DateTime.UtcNow.Millisecond / 1000.0;
-            this.DrawBufferBytesArray[pixelIdx] = (byte)(Math.Sin(t * Math.PI) * byte.MaxValue); // Blue
+            this.DrawBufferBytesArray[pixelIdx] = (byte)(Math.Cos(t * Math.PI) * byte.MaxValue); // Blue
             this.DrawBufferBytesArray[pixelIdx + 1] = (byte)((double)y / this.DrawBufferSize.Height * byte.MaxValue); // Green
             this.DrawBufferBytesArray[pixelIdx + 2] = (byte)((double)x / this.Stride * byte.MaxValue); // Red
             this.DrawBufferBytesArray[pixelIdx + 3] = byte.MaxValue; // Transparency
