@@ -8,13 +8,15 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
 {
     using System;
     using System.Drawing;
+    using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Forms;
+    using System.Windows.Media.Media3D;
 
     /// <summary>
     /// Rasterizer Render Port.
     /// </summary>
-    public class Rasterizer : Render.Driver.GDI.RenderBaseGdi
+    public class Rasterizer : Driver.GDI.RenderBaseGdi
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="Rasterizer"/> class.
@@ -24,67 +26,110 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
         public Rasterizer(IRenderBaseArgs renderBaseArgs)
             : base(renderBaseArgs)
         {
-            // this.HostInput.MouseMove += this.CaptureCoordinates;
-            this.Stride = this.DrawBufferByteArraySize / this.DrawBufferSize.Height;
+            this.RunGame = false;
+            this.SleepTime = 0;
+            this.HostInput.KeyDown += this.HandleKeyPress;
+            this.HostInput.MousePress += this.HandleMousePress;
         }
-        
-        private int Stride { get; set; }
 
-        private void CaptureCoordinates(object sender, MouseEventArgs e)
-        {
-            int pixelIdx = (e.Y * this.Stride) + e.X;
-            Console.WriteLine($"{e.X} {e.Y}");
-            int B = this.DrawBufferBytesArray[pixelIdx];
-            int G = this.DrawBufferBytesArray[pixelIdx + 1];
-            int R = this.DrawBufferBytesArray[pixelIdx + 2];
-            Console.WriteLine($"{R} {G} {B}");
-        }
+        private bool RunGame { get; set; }
+
+        private int SleepTime { get; set; }
 
         /// <inheritdoc/>
         public override void RenderInternal()
         {
-            Array.Clear(this.DrawBufferBytesArray, 0, this.DrawBufferByteArraySize);
-            this.MoveToDrawBuffer();
-            int bitsPerPixel = Image.GetPixelFormatSize(this.DrawBufferPixelFormat) / 8;
-            Parallel.For(0, this.Stride / 4, (x) =>
+            Graphics graphics = this.DrawBuffer.Graphics;
+            if (this.RunGame)
             {
-                int rX = x * 4;
-                for (int y = 0; y < this.DrawBufferSize.Height; y++)
+                if (this.SleepTime > 0)
                 {
-                    this.SetRandomColor(rX, y);
+                    Thread.Sleep(this.SleepTime);
                 }
-            });
 
-            this.MoveToDrawBuffer();
+                Parallel.For(0, this.DrawBuffer.DrawBufferBytesArray.Length, this.SetRandomColor);
+            }
+            else
+            {
+                graphics.Clear(Color.Black);
+            }
 
-            // Graphics graphics = this.DrawGraphics;
-            // graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, 0, 0);
-            // graphics.DrawString($"ViewPort: {this.ViewportSize.Width}, {this.ViewportSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 20);
-            // graphics.DrawString($"DrawBuffer: {this.DrawBufferSize.Width}, {this.DrawBufferSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 40);
+            var pen = new Pen(Color.Bisque, 2);
+            Point[] points = [new Point(100, 200), new Point(200, 200), new Point(100, 400), new Point(100, 200)];
+
+            this.SetLine(graphics, pen, points);
+
+            graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, 0, 0);
+            graphics.DrawString($"Running: {this.RunGame}", this.FpsFont, Brushes.MediumSlateBlue, 0, 20);
+            graphics.DrawString($"ClientView: {this.ClientBuffer.Width}, {this.ClientBuffer.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 40);
+            graphics.DrawString($"DrawBuffer: {this.DrawBuffer.Width}, {this.DrawBuffer.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 60);
 
             // Draw bitmap to buffer
-            this.ViewPortBuffer.Graphics.DrawImage(this.DrawBuffer, new RectangleF(Point.Empty, this.ViewportSize), new RectangleF(Point.Empty, this.DrawBufferSize), GraphicsUnit.Pixel);
-            this.ViewPortBuffer.Render(this.ViewPortBufferHandle);
+            this.ClientBufferedGraphics.Graphics.DrawImage(this.DrawBuffer.BitMap, new RectangleF(Point.Empty, this.ClientBuffer.Size), new RectangleF(new PointF(-1F, -1F), this.DrawBuffer.Size), GraphicsUnit.Pixel);
+            this.ClientBufferedGraphics.Render(this.ClientViewBufferHandle);
         }
 
+        /// <inheritdoc />
         public override void Dispose()
         {
             base.Dispose();
-            // this.HostInput.MouseMove -= this.CaptureCoordinates;
+            this.HostInput.KeyDown -= this.HandleKeyPress;
+            this.HostInput.MousePress -= this.HandleMousePress;
         }
 
-        private void SetRandomColor(int x, int y)
+        private void HandleMousePress(object sender, MouseEventArgs e)
         {
-            int pixelIdx = (y * this.Stride) + x;
-            double t = DateTime.UtcNow.Millisecond / 1000.0;
-            this.DrawBufferBytesArray[pixelIdx] = (byte)(Math.Sin(t * Math.PI) * byte.MaxValue); // Blue
-            this.DrawBufferBytesArray[pixelIdx + 1] = (byte)((double)y / this.DrawBufferSize.Height * byte.MaxValue); // Green
-            this.DrawBufferBytesArray[pixelIdx + 2] = (byte)((double)x / this.Stride * byte.MaxValue); // Red
-            this.DrawBufferBytesArray[pixelIdx + 3] = byte.MaxValue; // Transparency
+        }
+
+        private void HandleKeyPress(object sender, KeyEventArgs e)
+        {
+            switch (e.KeyCode)
+            {
+                case Keys.Enter:
+                    this.RunGame = true;
+                    break;
+                case Keys.Right:
+                    this.SleepTime += 100;
+                    break;
+                case Keys.Left:
+                    this.SleepTime -= this.SleepTime > 0 ? 100 : 0;
+                    break;
+                case Keys.C:
+                    this.RunGame = false;
+                    this.SleepTime = 0;
+                    break;
+                case Keys.Escape:
+                    this.RunGame = false;
+                    this.SleepTime = 0;
+                    break;
+            }
+        }
+
+        private void SetRandomColor(int pixelIdx)
+        {
+            int y = pixelIdx / this.DrawBuffer.Width;
+            int x = pixelIdx - (y * this.DrawBuffer.Width);
+            this.DrawBuffer.DrawBufferBytesArray[pixelIdx] = this.GetColor(x, y).ToArgb();
+
             // this.DrawBufferBytesArray[pixelIdx] = (byte)(Math.Sin(t * Math.PI) * byte.MaxValue); // Blue
-            // this.DrawBufferBytesArray[pixelIdx + 1] = 0; // Green
-            // this.DrawBufferBytesArray[pixelIdx + 2] = 0; // Red
+            // this.DrawBufferBytesArray[pixelIdx + 1] = (byte)((double)y / this.DrawBufferSize.Height * byte.MaxValue); // Green
+            // this.DrawBufferBytesArray[pixelIdx + 2] = (byte)((double)x / this.DrawBufferSize.Width * byte.MaxValue); // Red
             // this.DrawBufferBytesArray[pixelIdx + 3] = byte.MaxValue; // Transparency
+        }
+
+        private Color GetColor(int x, int y)
+        {
+            double t = DateTime.UtcNow.Millisecond / 1000.0;
+            return Color.FromArgb(
+                byte.MaxValue,
+                (byte)((double)x / this.DrawBuffer.Width * byte.MaxValue),
+                (byte)((double)y / this.DrawBuffer.Height * byte.MaxValue),
+                (byte)(Math.Sin(t * Math.PI) * byte.MaxValue));
+        }
+
+        private void SetLine(Graphics graphics, Pen pen, Point[] points)
+        {
+            graphics.DrawLines(pen, points);
         }
     }
 }

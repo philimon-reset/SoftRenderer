@@ -68,7 +68,7 @@ public class InputPaint : InputControl
     {
         Console.WriteLine($@"Mouse down: {e.X}, {e.Y}");
     }
-    
+
     /// <inheritdoc cref="MouseDown" />
     private void PaintMouseUp(object sender, MouseEventArgs e)
     {

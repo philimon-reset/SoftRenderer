@@ -10,10 +10,11 @@ namespace SoftRenderer.Engine.Render
     using System.Drawing;
     using System.Threading;
     using System.Windows.Forms;
+    using Buffers;
     using SoftRenderer.Client.FPSCounter;
     using SoftRenderer.Engine.Input;
     using SoftRenderer.Engine.Input.EventArgs;
-    using Utility.Util;
+    using SoftRenderer.Utility.Util;
 
     /// <summary>
     /// Represents a vector in three-dimensional space.
@@ -24,27 +25,34 @@ namespace SoftRenderer.Engine.Render
     public abstract class RenderBase : IRenderBase
     {
         /// <summary>
+        /// Factor by which we shrink view port to draw buffer.
+        /// </summary>
+        private readonly int resizeFactor;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RenderBase"/> class.
         /// </summary>
         /// <param name="renderBaseArgs"> Given host handle. </param>
         protected RenderBase(IRenderBaseArgs renderBaseArgs)
         {
             // Renerbase arg values.
+            this.resizeFactor = 1;
             this.HostHandle = renderBaseArgs.HostHandle;
             this.HostInput = renderBaseArgs.Input;
 
             // Form control of the form.
             this.FormControl = Util.GetForm(this.HostHandle);
+            this.FormSize = this.FormControl.Size;
 
-            // Set size of viewport and buffer.
-            this.DrawBufferSize = new Size(this.FormControl.Size.Width / 10, this.FormControl.Size.Height / 10);
-            this.ViewportSize = this.FormControl.Size;
+            // Set size of draw buffer.
+            this.DrawBuffer = new DrawBuffer(new Size(this.FormControl.Size.Width / this.resizeFactor, this.FormControl.Size.Height / this.resizeFactor));
+
+            // set client buffer.
+            this.ClientBuffer = new ClientBuffer(this.FormSize);
 
             // Event Hooking.
             this.HostInput.SizeChanged += this.ScreenResize;
         }
-
-        protected Control FormControl { get; set; }
 
         /// <summary>
         /// Gets Handle for the windows form.
@@ -57,14 +65,25 @@ namespace SoftRenderer.Engine.Render
         protected IInput HostInput { get; private set; }
 
         /// <summary>
-        /// Gets or sets size of the buffer where rendering will take place.
+        /// Gets or sets form control.
         /// </summary>
-        protected Size DrawBufferSize { get; set; }
+        protected Control FormControl { get; set; }
+
 
         /// <summary>
-        /// Gets size of the screen. Output will be scaled to this size.
+        /// Gets or sets size of the entire form.
         /// </summary>
-        protected Size ViewportSize { get; private set; }
+        protected Size FormSize { get; set; }
+
+        /// <summary>
+        /// Gets or sets client Buffer struct
+        /// </summary>
+        protected ClientBuffer ClientBuffer { get; set; }
+
+        /// <summary>
+        /// Gets or sets draw Buffer instance to work with bitmap.
+        /// </summary>
+        protected DrawBuffer DrawBuffer { get; set; }
 
         /// <summary>
         /// Gets or sets total fps data.
@@ -76,10 +95,13 @@ namespace SoftRenderer.Engine.Render
         {
             // Dispose Properties.
             this.HostInput.Dispose();
+            this.DestroyDrawBuffer();
 
             // Set properties to default.
             this.HostHandle = default;
+            this.FormSize = default;
             this.HostInput = default;
+            this.ClientBuffer = default;
 
             // Event dispose
             this.HostInput!.SizeChanged -= this.ScreenResize;
@@ -97,12 +119,12 @@ namespace SoftRenderer.Engine.Render
         public abstract void RenderInternal();
 
         /// <summary>
-        /// Resize viewport size.
+        /// Resize Client Buffer size.
         /// </summary>
         /// <param name="argsNewSize">New size.</param>
-        protected virtual void ResizeViewPort(Size argsNewSize)
+        protected virtual void ResizeClientBuffer(Size argsNewSize)
         {
-            this.ViewportSize = argsNewSize;
+            this.ClientBuffer = new ClientBuffer(argsNewSize);
         }
 
         /// <summary>
@@ -111,7 +133,8 @@ namespace SoftRenderer.Engine.Render
         /// <param name="argsNewSize">New size.</param>
         protected virtual void ResizeBuffer(Size argsNewSize)
         {
-            this.DrawBufferSize = argsNewSize;
+            this.DestroyDrawBuffer();
+            this.DrawBuffer = new DrawBuffer(argsNewSize);
         }
 
         private void ScreenResize(object sender, ISizeChangeArgs args)
@@ -121,8 +144,18 @@ namespace SoftRenderer.Engine.Render
             {
                 size = new Size(1, 1);
             }
-            this.ResizeBuffer(new Size(size.Width / 10, size.Height / 10));
-            this.ResizeViewPort(args.NewSize);
+
+            this.ResizeBuffer(new Size(size.Width / this.resizeFactor, size.Height / this.resizeFactor));
+            this.ResizeClientBuffer(size);
+        }
+
+        /// <summary>
+        /// Dispose of bitmap(draw buffer).
+        /// </summary>
+        private void DestroyDrawBuffer()
+        {
+            this.DrawBuffer.Dispose();
+            this.DrawBuffer = default;
         }
     }
 }

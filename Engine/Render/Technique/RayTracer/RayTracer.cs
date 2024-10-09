@@ -30,10 +30,10 @@ namespace SoftRenderer.Engine.Render.Technique.RayTracer
         /// <inheritdoc/>
         public override void RenderInternal()
         {
-            this.ViewPortBuffer.Graphics.Clear(Color.Black);
-            this.ViewPortBuffer.Graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, 0, 0);
+            this.ClientBufferedGraphics.Graphics.Clear(Color.Black);
+            this.ClientBufferedGraphics.Graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, 0, 0);
 
-            this.ViewPortBuffer.Render(this.ViewPortBufferHandle);
+            this.ClientBufferedGraphics.Render(this.ClientViewBufferHandle);
         }
     }
 }
