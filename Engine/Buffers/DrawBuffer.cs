@@ -16,6 +16,9 @@ namespace SoftRenderer.Engine.Buffers
         /// <param name="size">size of draw buffer.</param>
         public DrawBuffer(Size size)
         {
+            this.Size = size;
+            this.Height = size.Height;
+            this.Width = size.Width;
             this.DrawBufferRectangle = new Rectangle(Point.Empty, size);
             this.DrawBufferBytesArray = new int[size.Width * size.Height];
             this.DrawBufferHandle = GCHandle.Alloc(this.DrawBufferBytesArray, GCHandleType.Pinned);
@@ -24,9 +27,34 @@ namespace SoftRenderer.Engine.Buffers
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="DrawBuffer"/> class.
+        /// </summary>
+        /// <param name="width">width.</param>
+        /// <param name="height">height.</param>
+        public DrawBuffer(int width, int height)
+            : this(new Size(width, height))
+        {
+        }
+
+        /// <summary>
         /// Gets bitMap where rendering occurs.
         /// </summary>
         public Bitmap BitMap { get; private set; }
+
+        /// <summary>
+        /// Gets the height dimension.
+        /// </summary>
+        public int Height { get; }
+
+        /// <summary>
+        /// Gets the width dimension.
+        /// </summary>
+        public int Width { get; }
+
+        /// <summary>
+        /// Gets size of draw buffer.
+        /// </summary>
+        public Size Size { get; }
 
         /// <summary>
         /// Gets graphics Surface of the DrawBuffer.

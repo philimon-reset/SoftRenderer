@@ -32,33 +32,17 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
             // Form control of the form.
             this.FormControl ??= Util.GetForm(this.HostHandle);
 
-            // Create DrawBuffer
-            this.DrawBuffer = new DrawBuffer(this.DrawBufferSize);
-
             // Double buffer for rendering setup.
             // Note: Buffer is the whole screen.
             this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
             this.ClientViewBufferHandle = this.GraphicsHandle.GetHdc();
-            this.CreateClientBuffer(this.ClientBufferSize);
-
-            // // Buffer size
-            // this.CreateDrawBuffer(this.DrawBufferSize);
+            this.CreateClientBufferGraphics();
         }
-
-        /// <summary>
-        /// Gets or sets graphics handle for client buffer.
-        /// </summary>
-        private Graphics GraphicsHandle { get; set; }
 
         /// <summary>
         /// Gets handle for view port buffer.
         /// </summary>
         protected IntPtr ClientViewBufferHandle { get; }
-
-        /// <summary>
-        /// Gets or sets draw Buffer instance to work with bitmap.
-        /// </summary>
-        protected DrawBuffer DrawBuffer { get; set; }
 
         /// <summary>
         /// Gets font shown for fps counter.
@@ -68,19 +52,19 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         /// <summary>
         /// Gets double buffer handle.
         /// </summary>
-        protected BufferedGraphics ClientBuffer { get; private set; }
+        protected BufferedGraphics ClientBufferedGraphics { get; private set; }
 
         /// <summary>
-        /// Gets or sets rectangle of the client form.
+        /// Gets or sets graphics handle for client buffer.
         /// </summary>
-        private Rectangle ClientBufferRectangle { get; set; }
+        private Graphics GraphicsHandle { get; set; }
+
 
         /// <inheritdoc/>
         public override void Dispose()
         {
             base.Dispose();
-            this.DestroyDrawBuffer();
-            this.DestroyClientBuffer();
+            this.DestroyClientBufferGraphics();
 
             this.RendererFps.Dispose();
             this.FpsFont.Dispose();
@@ -95,54 +79,32 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         protected override void ResizeBuffer(Size argsNewSize)
         {
             base.ResizeBuffer(argsNewSize);
-            this.DestroyDrawBuffer();
-            this.CreateDrawBuffer(argsNewSize);
         }
 
         /// <inheritdoc/>
         protected override void ResizeClientBuffer(Size argsNewSize)
         {
             base.ResizeClientBuffer(argsNewSize);
-            this.DestroyClientBuffer();
-            this.CreateClientBuffer(argsNewSize);
+            this.DestroyClientBufferGraphics();
+            this.CreateClientBufferGraphics();
         }
 
         /// <summary>
         /// Dispose of ClientBuffer.
         /// </summary>
-        private void DestroyClientBuffer()
+        private void DestroyClientBufferGraphics()
         {
-            this.ClientBuffer.Dispose();
-            this.ClientBuffer = default;
+            this.ClientBufferedGraphics.Dispose();
+            this.ClientBufferedGraphics = default;
         }
 
         /// <summary>
-        /// Allocate new view port buffer.
+        /// Allocate new client view graphics handle.
         /// </summary>
-        /// <param name="size">size of ClientView.</param>
-        private void CreateClientBuffer(Size size)
+        private void CreateClientBufferGraphics()
         {
-            this.ClientBufferRectangle = new Rectangle(Point.Empty, size);
-            this.ClientBuffer = BufferedGraphicsManager.Current.Allocate(this.ClientViewBufferHandle, this.ClientBufferRectangle);
-            this.ClientBuffer.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-        }
-
-        /// <summary>
-        /// Dispose of bitmap(draw buffer).
-        /// </summary>
-        private void DestroyDrawBuffer()
-        {
-            this.DrawBuffer.Dispose();
-            this.DrawBuffer = default;
-        }
-
-        /// <summary>
-        /// Allocate new draw buffer (bitmap) and graphics surface for draw buffer.
-        /// </summary>
-        /// <param name="size">size of draw buffer.</param>
-        private void CreateDrawBuffer(Size size)
-        {
-            this.DrawBuffer = new DrawBuffer(size);
+            this.ClientBufferedGraphics = BufferedGraphicsManager.Current.Allocate(this.ClientViewBufferHandle, this.ClientBuffer.ClientRectangle);
+            this.ClientBufferedGraphics.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
         }
     }
 }

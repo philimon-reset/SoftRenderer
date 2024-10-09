@@ -10,6 +10,7 @@ namespace SoftRenderer.Engine.Render
     using System.Drawing;
     using System.Threading;
     using System.Windows.Forms;
+    using Buffers;
     using SoftRenderer.Client.FPSCounter;
     using SoftRenderer.Engine.Input;
     using SoftRenderer.Engine.Input.EventArgs;
@@ -41,10 +42,13 @@ namespace SoftRenderer.Engine.Render
 
             // Form control of the form.
             this.FormControl = Util.GetForm(this.HostHandle);
+            this.FormSize = this.FormControl.Size;
 
-            // Set size of viewport and buffer.
-            this.DrawBufferSize = new Size(this.FormControl.Size.Width / this.resizeFactor, this.FormControl.Size.Height / this.resizeFactor);
-            this.ClientBufferSize = this.FormControl.Size;
+            // Set size of draw buffer.
+            this.DrawBuffer = new DrawBuffer(new Size(this.FormControl.Size.Width / this.resizeFactor, this.FormControl.Size.Height / this.resizeFactor));
+
+            // set client buffer.
+            this.ClientBuffer = new ClientBuffer(this.FormSize);
 
             // Event Hooking.
             this.HostInput.SizeChanged += this.ScreenResize;
@@ -65,15 +69,21 @@ namespace SoftRenderer.Engine.Render
         /// </summary>
         protected Control FormControl { get; set; }
 
-        /// <summary>
-        /// Gets or sets size of the buffer where rendering will take place.
-        /// </summary>
-        protected Size DrawBufferSize { get; set; }
 
         /// <summary>
-        /// Gets size of the screen. Output will be scaled to this size.
+        /// Gets or sets size of the entire form.
         /// </summary>
-        protected Size ClientBufferSize { get; private set; }
+        protected Size FormSize { get; set; }
+
+        /// <summary>
+        /// Gets or sets client Buffer struct
+        /// </summary>
+        protected ClientBuffer ClientBuffer { get; set; }
+
+        /// <summary>
+        /// Gets or sets draw Buffer instance to work with bitmap.
+        /// </summary>
+        protected DrawBuffer DrawBuffer { get; set; }
 
         /// <summary>
         /// Gets or sets total fps data.
@@ -85,10 +95,13 @@ namespace SoftRenderer.Engine.Render
         {
             // Dispose Properties.
             this.HostInput.Dispose();
+            this.DestroyDrawBuffer();
 
             // Set properties to default.
             this.HostHandle = default;
+            this.FormSize = default;
             this.HostInput = default;
+            this.ClientBuffer = default;
 
             // Event dispose
             this.HostInput!.SizeChanged -= this.ScreenResize;
@@ -111,7 +124,7 @@ namespace SoftRenderer.Engine.Render
         /// <param name="argsNewSize">New size.</param>
         protected virtual void ResizeClientBuffer(Size argsNewSize)
         {
-            this.ClientBufferSize = argsNewSize;
+            this.ClientBuffer = new ClientBuffer(argsNewSize);
         }
 
         /// <summary>
@@ -120,7 +133,8 @@ namespace SoftRenderer.Engine.Render
         /// <param name="argsNewSize">New size.</param>
         protected virtual void ResizeBuffer(Size argsNewSize)
         {
-            this.DrawBufferSize = argsNewSize;
+            this.DestroyDrawBuffer();
+            this.DrawBuffer = new DrawBuffer(argsNewSize);
         }
 
         private void ScreenResize(object sender, ISizeChangeArgs args)
@@ -133,6 +147,15 @@ namespace SoftRenderer.Engine.Render
 
             this.ResizeBuffer(new Size(size.Width / this.resizeFactor, size.Height / this.resizeFactor));
             this.ResizeClientBuffer(size);
+        }
+
+        /// <summary>
+        /// Dispose of bitmap(draw buffer).
+        /// </summary>
+        private void DestroyDrawBuffer()
+        {
+            this.DrawBuffer.Dispose();
+            this.DrawBuffer = default;
         }
     }
 }

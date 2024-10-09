@@ -61,12 +61,12 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
 
             graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, 0, 0);
             graphics.DrawString($"Running: {this.RunGame}", this.FpsFont, Brushes.MediumSlateBlue, 0, 20);
-            graphics.DrawString($"ClientView: {this.ClientBufferSize.Width}, {this.ClientBufferSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 40);
-            graphics.DrawString($"DrawBuffer: {this.DrawBufferSize.Width}, {this.DrawBufferSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 60);
+            graphics.DrawString($"ClientView: {this.ClientBuffer.Width}, {this.ClientBuffer.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 40);
+            graphics.DrawString($"DrawBuffer: {this.DrawBuffer.Width}, {this.DrawBuffer.Height}", this.FpsFont, Brushes.MediumSlateBlue, 0, 60);
 
             // Draw bitmap to buffer
-            this.ClientBuffer.Graphics.DrawImage(this.DrawBuffer.BitMap, new RectangleF(Point.Empty, this.ClientBufferSize), new RectangleF(new PointF(-1F, -1F), this.DrawBufferSize), GraphicsUnit.Pixel);
-            this.ClientBuffer.Render(this.ClientViewBufferHandle);
+            this.ClientBufferedGraphics.Graphics.DrawImage(this.DrawBuffer.BitMap, new RectangleF(Point.Empty, this.ClientBuffer.Size), new RectangleF(new PointF(-1F, -1F), this.DrawBuffer.Size), GraphicsUnit.Pixel);
+            this.ClientBufferedGraphics.Render(this.ClientViewBufferHandle);
         }
 
         /// <inheritdoc />
@@ -107,8 +107,8 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
 
         private void SetRandomColor(int pixelIdx)
         {
-            int y = pixelIdx / this.DrawBufferSize.Width;
-            int x = pixelIdx - (y * this.DrawBufferSize.Width);
+            int y = pixelIdx / this.DrawBuffer.Width;
+            int x = pixelIdx - (y * this.DrawBuffer.Width);
             this.DrawBuffer.DrawBufferBytesArray[pixelIdx] = this.GetColor(x, y).ToArgb();
 
             // this.DrawBufferBytesArray[pixelIdx] = (byte)(Math.Sin(t * Math.PI) * byte.MaxValue); // Blue
@@ -122,8 +122,8 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             double t = DateTime.UtcNow.Millisecond / 1000.0;
             return Color.FromArgb(
                 byte.MaxValue,
-                (byte)((double)x / this.DrawBufferSize.Width * byte.MaxValue),
-                (byte)((double)y / this.DrawBufferSize.Height * byte.MaxValue),
+                (byte)((double)x / this.DrawBuffer.Width * byte.MaxValue),
+                (byte)((double)y / this.DrawBuffer.Height * byte.MaxValue),
                 (byte)(Math.Sin(t * Math.PI) * byte.MaxValue));
         }
 
