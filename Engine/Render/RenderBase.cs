@@ -13,7 +13,7 @@ namespace SoftRenderer.Engine.Render
     using SoftRenderer.Client.FPSCounter;
     using SoftRenderer.Engine.Input;
     using SoftRenderer.Engine.Input.EventArgs;
-    using Utility.Util;
+    using SoftRenderer.Utility.Util;
 
     /// <summary>
     /// Represents a vector in three-dimensional space.
@@ -23,7 +23,10 @@ namespace SoftRenderer.Engine.Render
     /// </remarks>
     public abstract class RenderBase : IRenderBase
     {
-        private const int ResizeFactor = 1;
+        /// <summary>
+        /// Factor by which we shrink view port to draw buffer.
+        /// </summary>
+        private readonly int resizeFactor;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderBase"/> class.
@@ -32,6 +35,7 @@ namespace SoftRenderer.Engine.Render
         protected RenderBase(IRenderBaseArgs renderBaseArgs)
         {
             // Renerbase arg values.
+            this.resizeFactor = 1;
             this.HostHandle = renderBaseArgs.HostHandle;
             this.HostInput = renderBaseArgs.Input;
 
@@ -39,14 +43,12 @@ namespace SoftRenderer.Engine.Render
             this.FormControl = Util.GetForm(this.HostHandle);
 
             // Set size of viewport and buffer.
-            this.DrawBufferSize = new Size(this.FormControl.Size.Width / ResizeFactor, this.FormControl.Size.Height / ResizeFactor);
-            this.ViewportSize = this.FormControl.Size;
+            this.DrawBufferSize = new Size(this.FormControl.Size.Width / this.resizeFactor, this.FormControl.Size.Height / this.resizeFactor);
+            this.ClientBufferSize = this.FormControl.Size;
 
             // Event Hooking.
             this.HostInput.SizeChanged += this.ScreenResize;
         }
-
-        protected Control FormControl { get; set; }
 
         /// <summary>
         /// Gets Handle for the windows form.
@@ -59,6 +61,11 @@ namespace SoftRenderer.Engine.Render
         protected IInput HostInput { get; private set; }
 
         /// <summary>
+        /// Gets or sets form control.
+        /// </summary>
+        protected Control FormControl { get; set; }
+
+        /// <summary>
         /// Gets or sets size of the buffer where rendering will take place.
         /// </summary>
         protected Size DrawBufferSize { get; set; }
@@ -66,7 +73,7 @@ namespace SoftRenderer.Engine.Render
         /// <summary>
         /// Gets size of the screen. Output will be scaled to this size.
         /// </summary>
-        protected Size ViewportSize { get; private set; }
+        protected Size ClientBufferSize { get; private set; }
 
         /// <summary>
         /// Gets or sets total fps data.
@@ -99,12 +106,12 @@ namespace SoftRenderer.Engine.Render
         public abstract void RenderInternal();
 
         /// <summary>
-        /// Resize viewport size.
+        /// Resize Client Buffer size.
         /// </summary>
         /// <param name="argsNewSize">New size.</param>
-        protected virtual void ResizeViewPort(Size argsNewSize)
+        protected virtual void ResizeClientBuffer(Size argsNewSize)
         {
-            this.ViewportSize = argsNewSize;
+            this.ClientBufferSize = argsNewSize;
         }
 
         /// <summary>
@@ -124,8 +131,8 @@ namespace SoftRenderer.Engine.Render
                 size = new Size(1, 1);
             }
 
-            this.ResizeBuffer(new Size(size.Width / ResizeFactor, size.Height / ResizeFactor));
-            this.ResizeViewPort(size);
+            this.ResizeBuffer(new Size(size.Width / this.resizeFactor, size.Height / this.resizeFactor));
+            this.ResizeClientBuffer(size);
         }
     }
 }

@@ -58,6 +58,8 @@
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Client\FPSCounter.cs" />
+    <Compile Include="Engine\Buffers\ClientBuffer.cs" />
+    <Compile Include="Engine\Buffers\DrawBuffer.cs" />
     <Compile Include="Engine\Input\EventArgs\ISizeChangeArgs.cs" />
     <Compile Include="Engine\Input\EventArgs\SizeChangeArgs.cs" />
     <Compile Include="Engine\Input\IInput.cs" />
@@ -70,7 +72,6 @@
     <Compile Include="Engine\Render\Technique\Canvas\Canvas.cs" />
     <Compile Include="Engine\Render\Technique\Rasterizer\Rasterizer.cs" />
     <Compile Include="Engine\Render\Technique\RayTracer\RayTracer.cs" />
-    <Compile Include="Utility\DrawBuffer.cs" />
     <Compile Include="Utility\Win32\DLL.cs" />
     <Compile Include="Client\WindowFactory.cs" />
     <Compile Include="Engine\Render\IRenderBase.cs" />
