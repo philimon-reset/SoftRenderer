@@ -7,6 +7,7 @@ namespace SoftRenderer.Math
 {
     using System;
     using System.Collections.Generic;
+    using System.Drawing;
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
@@ -19,6 +20,8 @@ namespace SoftRenderer.Math
     /// </remarks>
     public class Vector
     {
+        #region ctor
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Vector"/> class.
         /// </summary>
@@ -52,6 +55,9 @@ namespace SoftRenderer.Math
             this.Y = other.Y;
             this.Z = other.Z;
         }
+        #endregion
+
+        #region properties
 
         /// <summary>
         /// Gets the X-axis vector.
@@ -102,6 +108,19 @@ namespace SoftRenderer.Math
         /// Gets or sets the Z coordinate of the vector.
         /// </summary>
         public double Z { get; set; }
+        #endregion
+
+        #region overloads
+
+        public static implicit operator PointF(Vector vector)
+        {
+            return new PointF((float)vector.X, (float)vector.Y);
+        }
+
+        public static implicit operator Point(Vector vector)
+        {
+            return new Point((int)vector.X, (int)vector.Y);
+        }
 
         /// <summary>
         /// Gets or sets the value at the specified index.
@@ -125,7 +144,7 @@ namespace SoftRenderer.Math
                     return this.Z;
                 }
 
-                throw new Exception();
+                throw new Exception("out of index range.");
             }
 
             set
@@ -144,10 +163,81 @@ namespace SoftRenderer.Math
                 }
                 else
                 {
-                    throw new Exception();
+                    throw new Exception("out of index range.");
                 }
             }
         }
+
+        /// <summary>
+        /// Returns a string representation of the vector.
+        /// </summary>
+        /// <returns>A string representation of the vector.</returns>
+        public override string ToString()
+        {
+            return $"[{this.X}, {this.Y}, {this.Z}]";
+        }
+        #endregion
+
+        #region screenSpaceConversions 
+
+        /// <summary>
+        /// Convert Vector from screen space coordinate to view space coordinate.
+        /// </summary>
+        /// <param name="vector">vector to convert.</param>
+        /// <param name="size">size of buffer.</param>
+        /// <param name="offsetPoint">point where buffer is initialized.</param>
+        /// <returns>new vector position.</returns>
+        public static Vector ToViewSpaceScaled(Vector vector, Size size, Point offsetPoint)
+        {
+            double vx = (vector.X - offsetPoint.X) * 2 / size.Width;
+            double vy = (vector.Y + offsetPoint.Y) * 2 / size.Height;
+            return new Vector(vx, vy, vector.Z);
+        }
+
+        /// <summary>
+        /// Convert Vector from view space coordinate to screen space coordinate.
+        /// </summary>
+        /// <param name="vector">vector to convert.</param>
+        /// <param name="size">size of buffer.</param>
+        /// <param name="offsetPoint">point where buffer is initialized.</param>
+        /// <returns>new vector position.</returns>
+        public static Vector ToScreenSpaceScaled(Vector vector, Size size, Point offsetPoint)
+        {
+            double cx = (((vector.X + 1) * 0.5) * size.Width) + offsetPoint.X;
+            double cy = (((1 - vector.Y) * 0.5) * size.Height) + offsetPoint.Y;
+            return new Vector(cx, cy, vector.Z);
+        }
+
+        /// <summary>
+        /// Convert Vector from screen space coordinate to view space coordinate.
+        /// </summary>
+        /// <param name="vector">vector to convert.</param>
+        /// <param name="size">size of buffer.</param>
+        /// <param name="offsetPoint">point where buffer is initialized.</param>
+        /// <returns>new vector position.</returns>
+        public static Vector ToViewSpace(Vector vector, Size size, Point offsetPoint)
+        {
+            double vx = (vector.X - offsetPoint.X) * 2 / size.Width;
+            double vy = (vector.Y + offsetPoint.Y) * 2 / size.Height;
+            return new Vector(vx, vy, vector.Z);
+        }
+
+        /// <summary>
+        /// Convert Vector from view space coordinate to screen space coordinate.
+        /// </summary>
+        /// <param name="vector">vector to convert.</param>
+        /// <param name="size">size of buffer.</param>
+        /// <param name="offsetPoint">point where buffer is initialized.</param>
+        /// <returns>new vector position.</returns>
+        public static Vector ToScreenSpace(Vector vector, Size size, Point offsetPoint)
+        {
+            double cx = (size.Width * 0.5) + vector.X + offsetPoint.X;
+            double cy = (size.Height * 0.5) - vector.Y + offsetPoint.Y;
+            return new Vector(cx, cy, vector.Z);
+        }
+        #endregion
+
+        #region vectorOperations
 
         /// <summary>
         /// Calculates the sum of two vectors.
@@ -187,15 +277,6 @@ namespace SoftRenderer.Math
             double y = (a.Z * b.X) - (a.X * b.Z);
             double z = (a.X * b.Y) - (a.Y * b.X);
             return new Vector(x, y, z);
-        }
-
-        /// <summary>
-        /// Returns a string representation of the vector.
-        /// </summary>
-        /// <returns>A string representation of the vector.</returns>
-        public override string ToString()
-        {
-            return $"[{this.X}, {this.Y}, {this.Z}]";
         }
 
         /// <summary>
@@ -258,5 +339,6 @@ namespace SoftRenderer.Math
             double len = Math.Sqrt(sql);
             return len;
         }
+        #endregion
     }
 }
