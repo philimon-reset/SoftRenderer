@@ -49,26 +49,27 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
                 }
 
                 Parallel.For(0, this.DrawBuffer.DrawBufferBytesArray.Length, this.SetRandomColor);
+                this.DrawBuffer.MoveToDrawBuffer();
             }
             else
             {
                 graphics.Clear(Color.Black);
             }
 
-            var pen = new Pen(Color.Bisque, 2);
-            Point[] points = [new Point(100, 200), new Point(200, 200), new Point(100, 400), new Point(100, 200)];
-
-            Point[] pointsScaled =
-            {
-                Vector.ToScreenSpaceScaled(new Vector(0, 0, 0), this.ClientBuffer.Size, new Point(this.ClientBuffer.X, this.ClientBuffer.Y)),
-                Vector.ToScreenSpaceScaled(new Vector(0, -0.9F, 0), this.ClientBuffer.Size, new Point(this.ClientBuffer.X, this.ClientBuffer.Y)),
-                Vector.ToScreenSpaceScaled(new Vector(0.7F, 0, 0), this.ClientBuffer.Size, new Point(this.ClientBuffer.X, this.ClientBuffer.Y)),
-                Vector.ToScreenSpaceScaled(new Vector(0, 0, 0), this.ClientBuffer.Size, new Point(this.ClientBuffer.X, this.ClientBuffer.Y)),
-            };
-
-            this.SetLine(graphics, pen, points);
-
-            this.SetLine(graphics, pen, pointsScaled);
+            // var pen = new Pen(Color.Bisque, 2);
+            // Point[] points = [new Point(100, 200), new Point(200, 200), new Point(100, 400), new Point(100, 200)];
+            //
+            // Point[] pointsScaled =
+            // {
+            //     Vector.ToScreenSpaceScaled(new Vector(0, 0, 0), this.ClientBuffer.Size, new Point(this.ClientBuffer.X, this.ClientBuffer.Y)),
+            //     Vector.ToScreenSpaceScaled(new Vector(0, -0.9F, 0), this.ClientBuffer.Size, new Point(this.ClientBuffer.X, this.ClientBuffer.Y)),
+            //     Vector.ToScreenSpaceScaled(new Vector(0.7F, 0, 0), this.ClientBuffer.Size, new Point(this.ClientBuffer.X, this.ClientBuffer.Y)),
+            //     Vector.ToScreenSpaceScaled(new Vector(0, 0, 0), this.ClientBuffer.Size, new Point(this.ClientBuffer.X, this.ClientBuffer.Y)),
+            // };
+            //
+            // this.SetLine(graphics, pen, points);
+            //
+            // this.SetLine(graphics, pen, pointsScaled);
 
             graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, 0, 0);
             graphics.DrawString($"Running: {this.RunGame}", this.FpsFont, Brushes.MediumSlateBlue, 0, 20);

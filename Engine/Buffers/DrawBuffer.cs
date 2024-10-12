@@ -14,16 +14,24 @@ namespace SoftRenderer.Engine.Buffers
         /// Initializes a new instance of the <see cref="DrawBuffer"/> class.
         /// </summary>
         /// <param name="size">size of draw buffer.</param>
-        public DrawBuffer(Size size)
+        public DrawBuffer(Size size, bool gCflag = false)
         {
             this.Size = size;
             this.Height = size.Height;
             this.Width = size.Width;
             this.DrawBufferRectangle = new Rectangle(Point.Empty, size);
             this.DrawBufferBytesArray = new int[size.Width * size.Height];
-            this.DrawBufferHandle = GCHandle.Alloc(this.DrawBufferBytesArray, GCHandleType.Pinned);
-            this.BitMap = new Bitmap(size.Width, size.Height, size.Width * 4, PixelFormat.Format32bppArgb, this.DrawBufferHandle.AddrOfPinnedObject());
+            // this.DrawBufferHandle = GCHandle.Alloc(this.DrawBufferBytesArray, GCHandleType.Pinned);
+            this.BitMap = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
             this.Graphics = Graphics.FromImage(this.BitMap);
+        }
+
+        public void MoveToDrawBuffer()
+        {
+            BitmapData drawBufferData = this.BitMap.LockBits(this.DrawBufferRectangle, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            IntPtr drawBufferPtr = drawBufferData.Scan0;
+            Marshal.Copy(this.DrawBufferBytesArray, 0, drawBufferPtr, this.DrawBufferBytesArray.Length);
+            this.BitMap.UnlockBits(drawBufferData);
         }
 
         /// <summary>
@@ -74,7 +82,7 @@ namespace SoftRenderer.Engine.Buffers
         /// <summary>
         /// Gets or sets gC handle for the draw buffer to improve performace.
         /// </summary>
-        private GCHandle DrawBufferHandle { get; set;  }
+        // private GCHandle DrawBufferHandle { get; set;  }
 
         /// <summary>
         /// Dispose of draw buffer instance.
@@ -92,8 +100,8 @@ namespace SoftRenderer.Engine.Buffers
             this.Graphics.Dispose();
             this.Graphics = default;
 
-            this.DrawBufferHandle.Free();
-            this.DrawBufferHandle = default;
+            // this.DrawBufferHandle.Free();
+            // this.DrawBufferHandle = default;
 
             this.BitMap.Dispose();
             this.BitMap = default;
