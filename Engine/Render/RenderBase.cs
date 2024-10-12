@@ -23,7 +23,7 @@ namespace SoftRenderer.Engine.Render
     /// </remarks>
     public abstract class RenderBase : IRenderBase
     {
-        protected int ResizeFactor = 10;
+        protected int ResizeFactor = 1;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderBase"/> class.

@@ -29,7 +29,7 @@ namespace SoftRenderer.Client
         /// </summary>
         public SoftRendererForm()
         {
-            this.General = WindowFactory.RenderBaseSeed<General>(2);
+            this.General = WindowFactory.RenderBaseSeed(2) as General;
             // this.RayTraceBase = WindowFactory.RenderBaseSeed<RayTracer>(1);
             this.RenderBases = new IRenderBase[] { this.General };
             while (Application.OpenForms.Count >= 1)

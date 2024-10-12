@@ -26,7 +26,7 @@ namespace SoftRenderer.Client
         /// <param name="type">technique type for rendering.</param>
         /// <typeparam name="T">which rendering techinque return type to use.</typeparam>
         /// <returns> a renderbase (viewport). </returns>
-        public static T RenderBaseSeed<T>(int type)
+        public static IRenderBase RenderBaseSeed(int type)
         {
             var size = new System.Drawing.Size(720, 480);
             IRenderBase renderBase;
@@ -48,7 +48,7 @@ namespace SoftRenderer.Client
                 renderBase = CreateRenderBaseForm(size, "Canvas", (hostControl) => new Canvas(new RenderBaseArgs(hostControl.Handle, new InputPaint(hostControl))));
             }
 
-            return (T)Convert.ChangeType(renderBase, typeof(T));
+            return renderBase;
         }
 
         /// <summary>

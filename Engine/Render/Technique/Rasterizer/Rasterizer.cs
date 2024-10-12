@@ -86,7 +86,7 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
         {
             int pixelIdx = (y * this.Stride) + x;
             double t = DateTime.UtcNow.Millisecond / 1000.0;
-            this.DrawBufferBytesArray[pixelIdx] = (byte)(Math.Cos(t * Math.PI) * byte.MaxValue); // Blue
+            this.DrawBufferBytesArray[pixelIdx] = (byte)(Math.Sin(t * Math.PI) * byte.MaxValue); // Blue
             this.DrawBufferBytesArray[pixelIdx + 1] = (byte)((double)y / this.DrawBufferSize.Height * byte.MaxValue); // Green
             this.DrawBufferBytesArray[pixelIdx + 2] = (byte)((double)x / this.Stride * byte.MaxValue); // Red
             this.DrawBufferBytesArray[pixelIdx + 3] = byte.MaxValue; // Transparency
