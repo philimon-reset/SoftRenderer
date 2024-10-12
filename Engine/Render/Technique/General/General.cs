@@ -28,20 +28,25 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             this.Stride = this.DrawBufferByteArraySize / this.DrawBufferSize.Height;
             this.NextGenerationArray = new byte[this.DrawBufferByteArraySize];
             this.RunGame = false;
-            this.SleepTime = 100;
+            this.MouseClicked = false;
+            this.SleepTime = 0;
             this.HostInput.KeyDown += this.HandleKeyPress;
+            this.HostInput.MouseMove += this.HandleMouseMove;
             this.HostInput.MousePress += this.HandleMousePress;
+            this.HostInput.MouseRelease += this.HandleMouseRelase;
+        }
+
+        private void HandleMouseRelase(object sender, MouseEventArgs e)
+        {
+            this.MouseClicked = false;
         }
 
         private void HandleMousePress(object sender, MouseEventArgs e)
         {
-            int x = (int)Math.Ceiling(e.X / (double)this.ResizeFactor) - 1;
-            int y = (int)Math.Ceiling(e.Y / (double)this.ResizeFactor) - 1;
-            this.SetAlive(x, y);
-
-            // Console.WriteLine($"X: {x}, Y: {y}");
-            // Console.WriteLine($"eX: {e.X}, eY: {e.Y}");
+            this.MouseClicked = true;
         }
+
+        public bool MouseClicked { get; set; }
 
         private void HandleKeyPress(object sender, KeyEventArgs e)
         {
@@ -59,13 +64,13 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
                     break;
                 case Keys.C:
                     this.RunGame = false;
-                    this.SleepTime = 100;
+                    this.SleepTime = 0;
                     Array.Clear(this.DrawBufferBytesArray, 0, this.DrawBufferByteArraySize);
                     graphics.Clear(Color.Black);
                     break;
                 case Keys.Escape:
                     this.RunGame = false;
-                    this.SleepTime = 100;
+                    this.SleepTime = 0;
                     break;
             }
         }
@@ -84,6 +89,18 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             base.Dispose();
             this.HostInput.KeyDown -= this.HandleKeyPress;
             this.HostInput.MousePress -= this.HandleMousePress;
+            this.HostInput.MouseMove -= this.HandleMouseMove;
+            this.HostInput.MouseRelease -= this.HandleMouseRelase;
+        }
+
+        private void HandleMouseMove(object sender, MouseEventArgs e)
+        {
+            if (this.MouseClicked)
+            {
+                int x = (int)Math.Ceiling(e.X / (double)this.ResizeFactor) - 1;
+                int y = (int)Math.Ceiling(e.Y / (double)this.ResizeFactor) - 1;
+                this.SetAlive(x, y);
+            }
         }
 
         /// <inheritdoc/>
@@ -102,7 +119,6 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
                 Array.Clear(this.DrawBufferBytesArray, 0, this.DrawBufferByteArraySize);
                 Array.Copy(this.NextGenerationArray, this.DrawBufferBytesArray, this.NextGenerationArray.Length);
             }
-
             this.MoveToDrawBuffer();
 
             // Draw bitmap to buffer
