@@ -7,7 +7,6 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
     using System;
     using System.Drawing;
     using System.Drawing.Drawing2D;
-    using Buffers;
     using SoftRenderer.Client.FPSCounter;
     using SoftRenderer.Utility.Util;
 
@@ -35,14 +34,13 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
             // Double buffer for rendering setup.
             // Note: Buffer is the whole screen.
             this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
-            this.ClientViewBufferHandle = this.GraphicsHandle.GetHdc();
             this.CreateClientBufferGraphics();
         }
 
         /// <summary>
         /// Gets handle for view port buffer.
         /// </summary>
-        protected IntPtr ClientViewBufferHandle { get; }
+        protected IntPtr ClientViewBufferHandle { get; private set; }
 
         /// <summary>
         /// Gets font shown for fps counter.
@@ -75,10 +73,18 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
             this.GraphicsHandle = default;
         }
 
-        /// <inheritdoc/>
-        protected override void ResizeBuffer(Size argsNewSize)
+        public override void Render()
         {
-            base.ResizeBuffer(argsNewSize);
+            base.Render();
+            var graphics = this.ClientBufferedGraphics.Graphics;
+            Point clientBufferPoint = new Point(this.ClientBuffer.X, this.ClientBuffer.Y);
+            graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, clientBufferPoint);
+            graphics.DrawString($"FormSize: {this.FormSize.Width}, {this.FormSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, clientBufferPoint.X, clientBufferPoint.Y + 20);
+            graphics.DrawString($"ClientView: {this.ClientBuffer.Width}, {this.ClientBuffer.Height}", this.FpsFont, Brushes.MediumSlateBlue, clientBufferPoint.X, clientBufferPoint.Y + 40);
+            graphics.DrawString($"DrawBuffer: {this.DrawBuffer.Width}, {this.DrawBuffer.Height}", this.FpsFont, Brushes.MediumSlateBlue, clientBufferPoint.X, clientBufferPoint.Y + 60);
+
+            // Draw bitmap to buffer
+            this.ClientBufferedGraphics.Render(this.ClientViewBufferHandle);
         }
 
         /// <inheritdoc/>
@@ -103,6 +109,9 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         /// </summary>
         private void CreateClientBufferGraphics()
         {
+            this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
+            this.GraphicsHandle.Clear(Color.Black);
+            this.ClientViewBufferHandle = this.GraphicsHandle.GetHdc();
             this.ClientBufferedGraphics = BufferedGraphicsManager.Current.Allocate(this.ClientViewBufferHandle, this.ClientBuffer.ClientRectangle);
             this.ClientBufferedGraphics.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
         }

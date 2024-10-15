@@ -14,16 +14,24 @@ namespace SoftRenderer.Engine.Buffers
         /// Initializes a new instance of the <see cref="DrawBuffer"/> class.
         /// </summary>
         /// <param name="size">size of draw buffer.</param>
-        public DrawBuffer(Size size, bool gCflag = false)
+        public DrawBuffer(Size size)
         {
             this.Size = size;
             this.Height = size.Height;
             this.Width = size.Width;
             this.DrawBufferRectangle = new Rectangle(Point.Empty, size);
-            this.DrawBufferBytesArray = new int[size.Width * size.Height];
+            this.DrawBufferBytesArray = this.CreateDrawBufferArray(size);
             // this.DrawBufferHandle = GCHandle.Alloc(this.DrawBufferBytesArray, GCHandleType.Pinned);
+            // this.DrawBufferPtr = this.DrawBufferHandle.AddrOfPinnedObject();
+            // this.BitMap = new Bitmap(size.Width, size.Height, this.Stride, PixelFormat.Format32bppArgb,  this.DrawBufferPtr);
             this.BitMap = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
             this.Graphics = Graphics.FromImage(this.BitMap);
+        }
+
+        private byte[] CreateDrawBufferArray(Size size)
+        {
+            this.Stride = size.Width * 4;
+            return new byte[this.Stride * size.Height];
         }
 
         public void MoveToDrawBuffer()
@@ -48,6 +56,13 @@ namespace SoftRenderer.Engine.Buffers
         /// Gets bitMap where rendering occurs.
         /// </summary>
         public Bitmap BitMap { get; private set; }
+
+        /// <summary>
+        /// Int Ptr to Draw Buffer.
+        /// </summary>
+        // public IntPtr DrawBufferPtr { get; }
+
+        public int Stride { get; private set; }
 
         /// <summary>
         /// Gets the height dimension.
@@ -75,9 +90,9 @@ namespace SoftRenderer.Engine.Buffers
         public Rectangle DrawBufferRectangle { get; set; }
 
         /// <summary>
-        /// Gets or sets byte array that is manipulated and translated to the draw buffer.
+        /// Gets byte array that is manipulated and translated to the draw buffer.
         /// </summary>
-        public int[] DrawBufferBytesArray { get; set; }
+        public byte[] DrawBufferBytesArray { get; private set; }
 
         /// <summary>
         /// Gets or sets gC handle for the draw buffer to improve performace.
