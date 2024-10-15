@@ -20,10 +20,26 @@ namespace SoftRenderer.Engine.Buffers
             this.Height = size.Height;
             this.Width = size.Width;
             this.DrawBufferRectangle = new Rectangle(Point.Empty, size);
-            this.DrawBufferBytesArray = new int[size.Width * size.Height];
-            this.DrawBufferHandle = GCHandle.Alloc(this.DrawBufferBytesArray, GCHandleType.Pinned);
-            this.BitMap = new Bitmap(size.Width, size.Height, size.Width * 4, PixelFormat.Format32bppArgb, this.DrawBufferHandle.AddrOfPinnedObject());
+            this.DrawBufferBytesArray = this.CreateDrawBufferArray(size);
+            // this.DrawBufferHandle = GCHandle.Alloc(this.DrawBufferBytesArray, GCHandleType.Pinned);
+            // this.DrawBufferPtr = this.DrawBufferHandle.AddrOfPinnedObject();
+            // this.BitMap = new Bitmap(size.Width, size.Height, this.Stride, PixelFormat.Format32bppArgb,  this.DrawBufferPtr);
+            this.BitMap = new Bitmap(size.Width, size.Height, PixelFormat.Format32bppArgb);
             this.Graphics = Graphics.FromImage(this.BitMap);
+        }
+
+        private byte[] CreateDrawBufferArray(Size size)
+        {
+            this.Stride = size.Width * 4;
+            return new byte[this.Stride * size.Height];
+        }
+
+        public void MoveToDrawBuffer()
+        {
+            BitmapData drawBufferData = this.BitMap.LockBits(this.DrawBufferRectangle, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            IntPtr drawBufferPtr = drawBufferData.Scan0;
+            Marshal.Copy(this.DrawBufferBytesArray, 0, drawBufferPtr, this.DrawBufferBytesArray.Length);
+            this.BitMap.UnlockBits(drawBufferData);
         }
 
         /// <summary>
@@ -40,6 +56,13 @@ namespace SoftRenderer.Engine.Buffers
         /// Gets bitMap where rendering occurs.
         /// </summary>
         public Bitmap BitMap { get; private set; }
+
+        /// <summary>
+        /// Int Ptr to Draw Buffer.
+        /// </summary>
+        // public IntPtr DrawBufferPtr { get; }
+
+        public int Stride { get; private set; }
 
         /// <summary>
         /// Gets the height dimension.
@@ -67,14 +90,14 @@ namespace SoftRenderer.Engine.Buffers
         public Rectangle DrawBufferRectangle { get; set; }
 
         /// <summary>
-        /// Gets or sets byte array that is manipulated and translated to the draw buffer.
+        /// Gets byte array that is manipulated and translated to the draw buffer.
         /// </summary>
-        public int[] DrawBufferBytesArray { get; set; }
+        public byte[] DrawBufferBytesArray { get; private set; }
 
         /// <summary>
         /// Gets or sets gC handle for the draw buffer to improve performace.
         /// </summary>
-        private GCHandle DrawBufferHandle { get; set;  }
+        // private GCHandle DrawBufferHandle { get; set;  }
 
         /// <summary>
         /// Dispose of draw buffer instance.
@@ -92,8 +115,8 @@ namespace SoftRenderer.Engine.Buffers
             this.Graphics.Dispose();
             this.Graphics = default;
 
-            this.DrawBufferHandle.Free();
-            this.DrawBufferHandle = default;
+            // this.DrawBufferHandle.Free();
+            // this.DrawBufferHandle = default;
 
             this.BitMap.Dispose();
             this.BitMap = default;

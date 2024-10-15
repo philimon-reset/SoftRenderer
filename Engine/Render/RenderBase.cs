@@ -44,11 +44,12 @@ namespace SoftRenderer.Engine.Render
             this.FormControl = Util.GetForm(this.HostHandle);
             this.FormSize = this.FormControl.Size;
 
-            // Set size of draw buffer.
-            this.DrawBuffer = new DrawBuffer(new Size(this.FormControl.Size.Width / this.resizeFactor, this.FormControl.Size.Height / this.resizeFactor));
-
             // set client buffer.
-            this.ClientBuffer = new ClientBuffer(this.FormSize);
+            Size clientBufferSize = this.FormSize;
+            this.ClientBuffer = new ClientBuffer(clientBufferSize, 0, 0);
+
+            // Set size of draw buffer.
+            this.DrawBuffer = new DrawBuffer(new Size(this.ClientBuffer.Size.Width / this.resizeFactor, this.ClientBuffer.Size.Height / this.resizeFactor));
 
             // Event Hooking.
             this.HostInput.SizeChanged += this.ScreenResize;
@@ -76,9 +77,9 @@ namespace SoftRenderer.Engine.Render
         protected Size FormSize { get; set; }
 
         /// <summary>
-        /// Gets or sets client Buffer struct
+        /// Gets client Buffer struct
         /// </summary>
-        protected ClientBuffer ClientBuffer { get; set; }
+        protected ClientBuffer ClientBuffer { get; private set; }
 
         /// <summary>
         /// Gets or sets draw Buffer instance to work with bitmap.
@@ -124,7 +125,9 @@ namespace SoftRenderer.Engine.Render
         /// <param name="argsNewSize">New size.</param>
         protected virtual void ResizeClientBuffer(Size argsNewSize)
         {
-            this.ClientBuffer = new ClientBuffer(argsNewSize);
+            int x = (this.FormSize.Width - argsNewSize.Width) / 2;
+            int y = (this.FormSize.Height - argsNewSize.Height) / 2;
+            this.ClientBuffer = new ClientBuffer(argsNewSize, x, y);
         }
 
         /// <summary>
@@ -139,14 +142,15 @@ namespace SoftRenderer.Engine.Render
 
         private void ScreenResize(object sender, ISizeChangeArgs args)
         {
+            this.FormSize = args.NewSize;
             Size size = args.NewSize;
             if (size.Width < 1 || size.Height < 1)
             {
                 size = new Size(1, 1);
             }
 
-            this.ResizeBuffer(new Size(size.Width / this.resizeFactor, size.Height / this.resizeFactor));
             this.ResizeClientBuffer(size);
+            this.ResizeBuffer(new Size(size.Width / this.resizeFactor, size.Height / this.resizeFactor));
         }
 
         /// <summary>

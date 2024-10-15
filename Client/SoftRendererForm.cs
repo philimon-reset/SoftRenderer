@@ -5,13 +5,13 @@
 //-----------------------------------------------------------------------
 
 
-
 namespace SoftRenderer.Client
 {
     using System;
     using System.Collections.Generic;
     using System.Threading;
     using System.Windows.Forms;
+    using Math;
     using SoftRenderer.Engine;
     using SoftRenderer.Engine.Render.Technique.Canvas;
     using SoftRenderer.Engine.Render.Technique.Rasterizer;
@@ -28,9 +28,8 @@ namespace SoftRenderer.Client
         /// </summary>
         public SoftRendererForm()
         {
-            this.RasterBase = WindowFactory.RenderBaseSeed<Rasterizer>(0);
-            // this.RayTraceBase = WindowFactory.RenderBaseSeed<RayTracer>(1);
-            this.RenderBases = new IRenderBase[] { this.RasterBase };
+            this.RasterBase = WindowFactory.RenderBaseSeed(0) as Rasterizer;
+            this.RenderBases = [this.RasterBase];
             while (Application.OpenForms.Count >= 1)
             {
                 this.Render();

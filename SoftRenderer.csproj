@@ -15,6 +15,7 @@
     <Deterministic>true</Deterministic>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile />
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -72,13 +73,15 @@
     <Compile Include="Engine\Render\Technique\Canvas\Canvas.cs" />
     <Compile Include="Engine\Render\Technique\Rasterizer\Rasterizer.cs" />
     <Compile Include="Engine\Render\Technique\RayTracer\RayTracer.cs" />
+    <Compile Include="Math\Matrix.cs" />
+    <Compile Include="Math\Vector4.cs" />
     <Compile Include="Utility\Win32\DLL.cs" />
     <Compile Include="Client\WindowFactory.cs" />
     <Compile Include="Engine\Render\IRenderBase.cs" />
     <Compile Include="Engine\Render\RenderBase.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Math\Vector.cs" />
+    <Compile Include="Math\Vector3.cs" />
     <Compile Include="Utility\Util.cs" />
     <EmbeddedResource Include="Client\SoftRendererForm.resx">
       <DependentUpon>SoftRendererForm.cs</DependentUpon>
@@ -93,7 +96,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
