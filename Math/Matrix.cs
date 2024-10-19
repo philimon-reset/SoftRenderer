@@ -516,30 +516,56 @@ namespace SoftRenderer.Math
         }
 
         /// <summary>
-        ///     Generate translation matrix.
+        /// Generate translation matrix.
         /// </summary>
         /// <param name="vector">vector to translate by.</param>
         /// <returns>translation matrix.</returns>
-        public static Matrix Translation(Vector3 vector)
+        public static Matrix Translate(Vector3 vector)
         {
             double[,] mValues = new double[Size, Size]
             {
-                { 1, 0, 0, 0 },
-                { 0, 1, 0, 0 },
-                { 0, 0, 1, 0 },
-                { vector.X, vector.Y, vector.Z, 1 },
+                { 1, 0, 0, vector.X },
+                { 0, 1, 0, vector.Y },
+                { 0, 0, 1, vector.Z },
+                { 0, 0, 0, 1 },
             };
             return new Matrix(mValues);
         }
 
         /// <summary>
-        ///     Generate translation matrix.
+        /// Generate translation matrix.
         /// </summary>
         /// <param name="x">x coordinate.</param>
         /// <param name="y">y coordinate.</param>
         /// <param name="z">z coordinate.</param>
         /// <returns>translation matrix.</returns>
-        public static Matrix Translation(double x, double y, double z) => Translation(new Vector3(x, y, z));
+        public static Matrix Translate(double x, double y, double z) => Translate(new Vector3(x, y, z));
+
+        /// <summary>
+        ///  Generate Scale matrix.
+        /// </summary>
+        /// <param name="x">x.</param>
+        /// <param name="y">y.</param>
+        /// <param name="z">z.</param>
+        /// <returns>Scale matrix.</returns>
+        public static Matrix Scale(double x, double y, double z)
+        {
+            double[,] mValues = new double[Size, Size]
+            {
+                { x, 0, 0, 0 },
+                { 0, y, 0, 0 },
+                { 0, 0, z, 0 },
+                { 0, 0, 0, 1 },
+            };
+            return new Matrix(mValues);
+        }
+
+        /// <summary>
+        ///  Generate Scale matrix.
+        /// </summary>
+        /// <param name="vector">vector3.</param>
+        /// <returns>Scale matrix.</returns>
+        public static Matrix Scale(Vector3 vector) => Scale(vector.X, vector.Y, vector.Z);
 
         /// <summary>
         ///     Generate rotation matrix about an axis.
@@ -593,7 +619,7 @@ namespace SoftRenderer.Math
         /// <returns>new transformation matrix.</returns>
         public static Matrix TransformAround(Matrix transformation, Vector3 transOrigin)
         {
-            Matrix translateToPoint = Translation(transOrigin);
+            Matrix translateToPoint = Translate(transOrigin);
             return translateToPoint.GetInverted * transformation * translateToPoint;
         }
 
@@ -606,10 +632,10 @@ namespace SoftRenderer.Math
         {
             double[,] mValues = new double[Size, Size]
             {
-                { clientBuffer.Width * 0.5, 0, 0, 0 },
-                { 0, -clientBuffer.Height * 0.5, 0, 0 },
-                { 0, 0, clientBuffer.MaxZ - clientBuffer.MinZ, 0 },
-                { clientBuffer.X + (clientBuffer.Width * 0.5), clientBuffer.Y + (clientBuffer.Height * 0.5), clientBuffer.MinZ, 1 },
+                { clientBuffer.Width * 0.5, 0, 0, clientBuffer.X + (clientBuffer.Width * 0.5) },
+                { 0, -clientBuffer.Height * 0.5, 0, clientBuffer.Y + (clientBuffer.Height * 0.5) },
+                { 0, 0, clientBuffer.MaxZ - clientBuffer.MinZ, clientBuffer.MinZ },
+                { 0, 0, 0, 1 },
             };
             return new Matrix(mValues);
         }
@@ -814,6 +840,36 @@ namespace SoftRenderer.Math
 
             return new Matrix(newMat);
         }
+
+        /// <summary>
+        /// Multiplies a vector with a matrix (row major)
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="vector">The vector.</param>
+        /// <returns>The product of the matrix and vector.</returns>
+        public static Vector4 operator *(Matrix matrix, Vector4 vector)
+        {
+            Vector4 newVec = new Vector4();
+
+            for (int i = 0; i < 4; i++)
+            {
+                var multipliedVector = matrix[i] * vector;
+                newVec[i] = Vector4.DotProduct(multipliedVector);
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                newVec[i] /= newVec.W;
+            }
+            return newVec;
+        }
+
+        /// <summary>
+        /// Multiplies a vector with a matrix (row major)
+        /// </summary>
+        /// <param name="matrix">The matrix.</param>
+        /// <param name="vector">The vector3.</param>
+        /// <returns>The product of the matrix and vector.</returns>
+        public static Vector3 operator *(Matrix matrix, Vector3 vector) => matrix * new Vector4(vector, 1);
 
         #endregion Operators
     }

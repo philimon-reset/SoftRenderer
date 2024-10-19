@@ -120,6 +120,17 @@ namespace SoftRenderer.Engine.Render
         public abstract void RenderInternal();
 
         /// <summary>
+        /// Get constant periodic animation variable change.
+        /// </summary>
+        /// <param name="periodDuration">Duration each frame should last.</param>
+        /// <param name="utcNow">Current Datetime as seed.</param>
+        /// <returns>Variable used to mimic periodic time changes.</returns>
+        protected static double GetAnimationTime(TimeSpan periodDuration, DateTime utcNow)
+        {
+            return (((utcNow.Second * 1000) + utcNow.Millisecond) % periodDuration.TotalMilliseconds) / periodDuration.TotalMilliseconds;
+        }
+
+        /// <summary>
         /// Resize Client Buffer size.
         /// </summary>
         /// <param name="argsNewSize">New size.</param>

@@ -245,28 +245,6 @@ namespace SoftRenderer.Math
         public static Vector4 operator /(Vector4 vec, double scalar) => VectorOperation(vec, '/', scalar);
 
         /// <summary>
-        /// Multiplies a vector with a matrix (row major)
-        /// </summary>
-        /// <param name="matrix">The matrix.</param>
-        /// <param name="vector">The vector.</param>
-        /// <returns>The product of the matrix and vector.</returns>
-        public static Vector4 operator *(Matrix matrix, Vector4 vector)
-        {
-            Vector4 newVec = new Vector4();
-
-            for (int i = 0; i < 4; i++)
-            {
-                var multipliedVector = matrix[i] * vector;
-                newVec[i] = Vector4.DotProduct(multipliedVector);
-            }
-            for (int i = 0; i < 4; i++)
-            {
-                newVec[i] /= newVec.W;
-            }
-            return newVec;
-        }
-
-        /// <summary>
         /// Multiplies a vector with a matrix
         /// </summary>
         /// <param name="matrix">The matrix.</param>
@@ -290,9 +268,9 @@ namespace SoftRenderer.Math
 
         public static implicit operator Vector3(Vector4 vector)
         {
-            return new Vector3(vector);
+            return new Vector3(vector.X, vector.Y, vector.Z);
         }
-        
+
         public static implicit operator Quaternion(Vector4 vector)
         {
             return new Quaternion(vector.X, vector.Y, vector.Z, vector.W);

@@ -75,6 +75,7 @@
     <Compile Include="Engine\Render\Technique\RayTracer\RayTracer.cs" />
     <Compile Include="Math\Matrix.cs" />
     <Compile Include="Math\Vector4.cs" />
+    <Compile Include="Utility\Space.cs" />
     <Compile Include="Utility\Win32\DLL.cs" />
     <Compile Include="Client\WindowFactory.cs" />
     <Compile Include="Engine\Render\IRenderBase.cs" />
