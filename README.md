@@ -2,17 +2,12 @@
 
 ## Overview
 
-This project is a 3D rendering engine implemented in pure C#, which supports both **rasterization** and **ray tracing** rendering techniques. The goal is to provide an efficient and flexible renderer that can showcase real-time graphics using a rasterizer and high-quality offline rendering with a ray tracer.
+This project is a 3D rendering engine implemented in pure C#, currently supporting **rasterization** as the main rendering technique. The goal is to provide an efficient and flexible renderer that can showcase real-time graphics using a rasterizer.
 
 ### Key Features
 
 - **Rasterizer**: Implements a real-time renderer using techniques such as z-buffering, shading, and texturing.
-- **Ray Tracer**: Implements a path-tracing ray tracer supporting reflections, refractions, shadows, and global illumination.
-- **Material Support**: Supports different materials like Lambertian, Phong, and specular reflection models.
-- **Lighting**: Implements point, directional, and ambient lighting models.
-- **Anti-aliasing**: Optional supersampling for smoother images.
-- **Scene Parsing**: Load 3D models from OBJ files.
-- **Multithreading**: Parallel rendering using multithreading for performance optimization in ray tracing.
+- **Model Upload**: Supports loading 3D models in `.ply` format for visualization. Uploaded models are automatically rendered using the rasterizer.
 
 ## Table of Contents
 
@@ -20,7 +15,6 @@ This project is a 3D rendering engine implemented in pure C#, which supports bot
 - [Usage](#usage)
 - [Renderer Features](#renderer-features)
 - [Contributing](#contributing)
-- [License](#license)
 
 ## Installation
 
@@ -60,59 +54,34 @@ This project is a 3D rendering engine implemented in pure C#, which supports bot
 
 ### Running the Rasterizer
 
-The rasterizer renders the scene in real-time. You can run it by specifying the `-rasterize` flag.
+The rasterizer renders the scene in real-time. By default, uploaded `.ply` files are automatically rendered using the rasterizer.
 
 ```bash
 dotnet run -- -rasterize
 ```
 
-### Running the Ray Tracer
-
-The ray tracer provides high-quality, realistic images. Use the `-raytrace` flag to run it.
-
-```bash
-dotnet run -- -raytrace
-```
-
 ### Configuration Options
 
-- **Input Model**: Provide a `.obj` file to load a custom 3D model.
+- **Input Model**: Provide a `.ply` file to load a custom 3D model.
 
     ```bash
-    dotnet run -- -rasterize -input model.obj
+    dotnet run -- -rasterize -input model.ply
     ```
 
 - **Resolution**: Specify output resolution.
 
     ```bash
-    dotnet run -- -raytrace -resolution 1920x1080
-    ```
-
-- **Samples per pixel**: For the ray tracer, adjust the number of samples per pixel to improve image quality (anti-aliasing).
-
-    ```bash
-    dotnet run -- -raytrace -samples 100
-    ```
-
-- **Multithreading**: Control the number of threads used for rendering.
-
-    ```bash
-    dotnet run -- -raytrace -threads 8
+    dotnet run -- -rasterize -resolution 1920x1080
     ```
 
 ## Renderer Features
 
 ### Rasterizer
+
 - **Z-Buffering**: Depth-buffering technique to determine visible surfaces.
 - **Shading Models**: Flat shading, Gouraud shading, Phong shading.
 - **Texturing**: Support for texture mapping using UV coordinates.
 - **Culling**: Back-face culling to optimize rendering performance.
-  
-### Ray Tracer
-- **Shadows**: Accurate shadow calculation using ray intersections.
-- **Reflections**: Specular reflections based on material properties.
-- **Refractions**: Transparent materials with customizable index of refraction.
-- **Global Illumination**: Simulates light bouncing for more realistic lighting.
 
 ## Contributing
 
@@ -124,9 +93,10 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ### Future Improvements
 
-- Add support for complex lighting models like PBR (Physically Based Rendering).
-- Support GPU-accelerated rendering (using Vulkan or DirectX).
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+- **Ray Tracer**: Add support for a path-tracing ray tracer with features like reflections, refractions, shadows, and global illumination.
+- **Material Support**: Implement different materials like Lambertian, Phong, and specular reflection models.
+- **Lighting Models**: Support point, directional, and ambient lighting.
+- **Anti-aliasing**: Add supersampling for smoother images.
+- **Multithreading**: Parallel rendering for performance optimization.
+- **Support for OBJ Files**: Add support for loading 3D models from `.obj` files.
+- **GPU Acceleration**: Implement GPU-accelerated rendering (using Vulkan or DirectX).
