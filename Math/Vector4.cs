@@ -403,6 +403,20 @@ namespace SoftRenderer.Math
         #region vectorOperations
 
         /// <summary>
+        /// Converts the vector into a unit vector.
+        /// </summary>
+        /// <returns>True if the vector was successfully converted into a unit vector, otherwise false.</returns>
+        public static Vector4 Normalize(Vector4 vector)
+        {
+            vector.X /= vector.W;
+            vector.Y /= vector.W;
+            vector.Z /= vector.W;
+            return vector;
+        }
+
+        public static Vector3 Normalize(Vector3 vector3) => Normalize(new Vector4(vector3, 1));
+
+        /// <summary>
         /// Calculates the dot product of two vectors.
         /// </summary>
         /// <param name="a">The first vector.</param>

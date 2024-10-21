@@ -194,7 +194,52 @@ namespace SoftRenderer.Math
         public static Vector3 operator *(double scalar, Vector3 vec) => vec * scalar;
 
         /// <summary>
-        /// Multiplies a vector and another vector.
+        /// Adds a vector to another vector.
+        /// </summary>
+        /// <param name="vec">First vector.</param>
+        /// <param name="vec2">second vector.</param>
+        /// <returns>The resulting vector.</returns>
+        public static Vector3 operator +(Vector3 vec, Vector3 vec2)
+        {
+            Vector3 newVec = new Vector3();
+            newVec.X = vec.X + vec2.X;
+            newVec.Y = vec.Y + vec2.Y;
+            newVec.Z = vec.Z + vec2.Z;
+            return newVec;
+        }
+
+        /// <summary>
+        /// Subtracts a vector to another vector.
+        /// </summary>
+        /// <param name="vec">First vector.</param>
+        /// <param name="vec2">second vector.</param>
+        /// <returns>The resulting vector.</returns>
+        public static Vector3 operator -(Vector3 vec, Vector3 vec2)
+        {
+            Vector3 newVec = new Vector3();
+            newVec.X = vec.X - vec2.X;
+            newVec.Y = vec.Y - vec2.Y;
+            newVec.Z = vec.Z - vec2.Z;
+            return newVec;
+        }
+
+        /// <summary>
+        /// Divides a vector to another vector.
+        /// </summary>
+        /// <param name="vec">First vector.</param>
+        /// <param name="vec2">second vector.</param>
+        /// <returns>The resulting vector.</returns>
+        public static Vector3 operator /(Vector3 vec, Vector3 vec2)
+        {
+            Vector3 newVec = new Vector3();
+            newVec.X = vec.X / vec2.X;
+            newVec.Y = vec.Y / vec2.Y;
+            newVec.Z = vec.Z / vec2.Z;
+            return newVec;
+        }
+
+        /// <summary>
+        /// Multiplies a vector to another vector.
         /// </summary>
         /// <param name="vec">Vector to multiply.</param>
         /// <param name="vec2">second vector to multiply.</param>
@@ -378,6 +423,33 @@ namespace SoftRenderer.Math
             Vector3 b = new Vector3();
             return (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
         }
+
+        /// <summary>
+        /// Determine the cross product of two Vectors.
+        /// Determine the vector product.
+        /// Determine the normal vector (Vector3 90° to the plane).
+        /// </summary>
+        /// <param name="v1">The vector to multiply.</param>
+        /// <param name="v2">The vector to multiply by.</param>
+        /// <returns>Vector3 representing the cross product of the two vectors.</returns>
+        public static Vector3 CrossProduct(Vector3 v1, Vector3 v2) => new Vector3((v1.Y * v2.Z) - (v1.Z * v2.Y), (v1.Z * v2.X) - (v1.X * v2.Z), (v1.X * v2.Y) - (v1.Y * v2.X));
+
+        /// <summary>
+        /// Calculates the dot product of a single vector
+        /// </summary>
+        /// <param name="a">The vector.</param>
+        /// <returns>added vector.</returns>
+        public double Dot(Vector3 a) => DotProduct(this, a);
+
+        /// <summary>
+        /// Determine the cross product of two Vectors.
+        /// Determine the vector product.
+        /// Determine the normal vector (Vector3 90° to the plane).
+        /// </summary>
+        /// <param name="other">The vector to multiply by.</param>
+        /// <returns>Vector3 representing the cross product of the two vectors.</returns>
+        public Vector3 Cross(Vector3 other) => CrossProduct(this, other);
+
 
         /// <summary>
         /// Reverses the direction of the vector.

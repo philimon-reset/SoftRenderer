@@ -1,6 +1,7 @@
 namespace SoftRenderer.Math
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Text;
     using System.Windows.Media.Media3D;
@@ -169,7 +170,7 @@ namespace SoftRenderer.Math
             {
                 for (int y = 0; y <= 3; y++)
                 {
-                    builder.Append($"| {this[x, y]} |");
+                    builder.Append($"| {this[y, x]} |");
                 }
 
                 builder.AppendLine();
@@ -355,6 +356,15 @@ namespace SoftRenderer.Math
         }
 
         /// <summary>
+        /// Computes the transpose of the given matrix.
+        /// </summary>
+        /// <returns>The transpose of the given matrix.</returns>
+        public Matrix Transpose
+        {
+            get => TransposeOperation(this);
+        }
+
+        /// <summary>
         ///     Gets the trace of the matrix, the sum of the values along the diagonal axis.
         /// </summary>
         public double Trace
@@ -413,10 +423,10 @@ namespace SoftRenderer.Math
 
         #endregion Properties
 
-        #region operations
+        #region  matrixOperations
 
         /// <summary>
-        ///     Get a column in the matrix.
+        /// Get a column in the matrix.
         /// </summary>
         /// <param name="idx">col index.</param>
         /// <param name="mat">matrix to slice.</param>
@@ -515,129 +525,25 @@ namespace SoftRenderer.Math
             return new Matrix([row0, row1, row2, row3]);
         }
 
+        
         /// <summary>
-        /// Generate translation matrix.
+        /// Computes the transpose of the given matrix.
         /// </summary>
-        /// <param name="vector">vector to translate by.</param>
-        /// <returns>translation matrix.</returns>
-        public static Matrix Translate(Vector3 vector)
+        /// <param name="mat">Matrix to compute the transpose of.</param>
+        /// <returns>The transpose of the given matrix.</returns>
+        public static Matrix TransposeOperation(Matrix mat)
         {
-            double[,] mValues = new double[Size, Size]
+            double[,] newMat = new double[Size, Size];
+
+            for (int i = 0; i < Size; i++)
             {
-                { 1, 0, 0, vector.X },
-                { 0, 1, 0, vector.Y },
-                { 0, 0, 1, vector.Z },
-                { 0, 0, 0, 1 },
-            };
-            return new Matrix(mValues);
-        }
+                for (int j = 0; j < Size; j++)
+                {
+                    newMat[j, i] = mat[i, j];
+                }
+            }
 
-        /// <summary>
-        /// Generate translation matrix.
-        /// </summary>
-        /// <param name="x">x coordinate.</param>
-        /// <param name="y">y coordinate.</param>
-        /// <param name="z">z coordinate.</param>
-        /// <returns>translation matrix.</returns>
-        public static Matrix Translate(double x, double y, double z) => Translate(new Vector3(x, y, z));
-
-        /// <summary>
-        ///  Generate Scale matrix.
-        /// </summary>
-        /// <param name="x">x.</param>
-        /// <param name="y">y.</param>
-        /// <param name="z">z.</param>
-        /// <returns>Scale matrix.</returns>
-        public static Matrix Scale(double x, double y, double z)
-        {
-            double[,] mValues = new double[Size, Size]
-            {
-                { x, 0, 0, 0 },
-                { 0, y, 0, 0 },
-                { 0, 0, z, 0 },
-                { 0, 0, 0, 1 },
-            };
-            return new Matrix(mValues);
-        }
-
-        /// <summary>
-        ///  Generate Scale matrix.
-        /// </summary>
-        /// <param name="vector">vector3.</param>
-        /// <returns>Scale matrix.</returns>
-        public static Matrix Scale(Vector3 vector) => Scale(vector.X, vector.Y, vector.Z);
-
-        /// <summary>
-        ///     Generate rotation matrix about an axis.
-        /// </summary>
-        /// <param name="angle">angle of rotation.</param>
-        /// <param name="axis">axis of rotation.</param>
-        /// <returns>rotation matrix.</returns>
-        public static Matrix Rotate(double angle, Vector3 axis)
-        {
-            var rotQ = new Quaternion(axis.GetNormalized, angle);
-            double xx = rotQ.X * rotQ.X;
-            double yy = rotQ.Y * rotQ.Y;
-            double zz = rotQ.Z * rotQ.Z;
-            double xy = rotQ.X * rotQ.Y;
-            double xz = rotQ.X * rotQ.Z;
-            double yz = rotQ.Y * rotQ.Z;
-            double xw = rotQ.X * rotQ.W;
-            double wy = rotQ.W * rotQ.Y;
-            double wz = rotQ.W * rotQ.Z;
-            double m00 = 1 - (2 * (yy + zz));
-            double m01 = 2 * (xy - wz);
-            double m02 = 2 * (xz + wy);
-            double m10 = 2 * (xy + wz);
-            double m11 = 1 - (2 * (xx + zz));
-            double m12 = 2 * (yz - xw);
-            double m20 = 2 * (xz - wy);
-            double m21 = 2 * (yz + xw);
-            double m22 = 1 - (2 * (xx + yy));
-            return new Matrix([
-                m00,
-                m01,
-                m02,
-                0,
-                m10,
-                m11,
-                m12,
-                0,
-                m20,
-                m21,
-                m22,
-                0,
-                0, 0, 0, 1,
-            ]);
-        }
-
-        /// <summary>
-        /// Get transforamtion around a point that isn't the origin.
-        /// </summary>
-        /// <param name="transformation">transformation matrix.</param>
-        /// <param name="transOrigin">new origin point.</param>
-        /// <returns>new transformation matrix.</returns>
-        public static Matrix TransformAround(Matrix transformation, Vector3 transOrigin)
-        {
-            Matrix translateToPoint = Translate(transOrigin);
-            return translateToPoint.GetInverted * transformation * translateToPoint;
-        }
-
-        /// <summary>
-        /// Transform coordinates to View Space buffer coordinates.
-        /// </summary>
-        /// <param name="clientBuffer">client buffer.</param>
-        /// <returns>Final matrix.</returns>
-        public static Matrix ClientViewTransform(ClientBuffer clientBuffer)
-        {
-            double[,] mValues = new double[Size, Size]
-            {
-                { clientBuffer.Width * 0.5, 0, 0, clientBuffer.X + (clientBuffer.Width * 0.5) },
-                { 0, -clientBuffer.Height * 0.5, 0, clientBuffer.Y + (clientBuffer.Height * 0.5) },
-                { 0, 0, clientBuffer.MaxZ - clientBuffer.MinZ, clientBuffer.MinZ },
-                { 0, 0, 0, 1 },
-            };
-            return new Matrix(mValues);
+            return new(newMat);
         }
 
         private static Matrix MatrixOperation(Matrix mat, char operation, double scalar)
@@ -694,6 +600,238 @@ namespace SoftRenderer.Math
             }
 
             return new Matrix(newMatrix);
+        }
+        #endregion
+
+        #region operations
+
+
+        /// <summary>
+        /// Generate translation matrix.
+        /// </summary>
+        /// <param name="vector">vector to translate by.</param>
+        /// <returns>translation matrix.</returns>
+        public static Matrix Translate(Vector3 vector)
+        {
+            double[,] mValues = new double[Size, Size]
+            {
+                { 1, 0, 0, 0 },
+                { 0, 1, 0, 0 },
+                { 0, 0, 1, 0 },
+                { vector.X, vector.Y, vector.Z, 1 },
+            };
+            return new Matrix(mValues);
+        }
+
+        /// <summary>
+        /// Generate translation matrix.
+        /// </summary>
+        /// <param name="x">x coordinate.</param>
+        /// <param name="y">y coordinate.</param>
+        /// <param name="z">z coordinate.</param>
+        /// <returns>translation matrix.</returns>
+        public static Matrix Translate(double x, double y, double z) => Translate(new Vector3(x, y, z));
+
+        /// <summary>
+        ///  Generate Scale matrix.
+        /// </summary>
+        /// <param name="x">x.</param>
+        /// <param name="y">y.</param>
+        /// <param name="z">z.</param>
+        /// <returns>Scale matrix.</returns>
+        public static Matrix Scale(double x, double y, double z)
+        {
+            double[,] mValues = new double[Size, Size]
+            {
+                { x, 0, 0, 0 },
+                { 0, y, 0, 0 },
+                { 0, 0, z, 0 },
+                { 0, 0, 0, 1 },
+            };
+            return new Matrix(mValues);
+        }
+
+        /// <summary>
+        ///  Generate Scale matrix.
+        /// </summary>
+        /// <param name="vector">vector3.</param>
+        /// <returns>Scale matrix.</returns>
+        public static Matrix Scale(Vector3 vector) => Scale(vector.X, vector.Y, vector.Z);
+
+        /// <summary>
+        ///  Generate Scale matrix.
+        /// </summary>
+        /// <param name="factor"factor.></param>
+        /// <returns>Scale matrix.</returns>
+        public static Matrix Scale(double factor) => Scale(new Vector3(factor, factor, factor));
+
+        /// <summary>
+        ///     Generate rotation matrix about an axis.
+        /// </summary>
+        /// <param name="angle">angle of rotation.</param>
+        /// <param name="axis">axis of rotation.</param>
+        /// <returns>rotation matrix.</returns>
+        public static Matrix Rotate(double angle, Vector3 axis)
+        {
+            var rotQ = new Quaternion(Vector4.Normalize(axis), (angle * -180) / Math.PI);
+            double xx = rotQ.X * rotQ.X;
+            double yy = rotQ.Y * rotQ.Y;
+            double zz = rotQ.Z * rotQ.Z;
+            double xy = rotQ.X * rotQ.Y;
+            double xz = rotQ.X * rotQ.Z;
+            double yz = rotQ.Y * rotQ.Z;
+            double xw = rotQ.X * rotQ.W;
+            double wy = rotQ.W * rotQ.Y;
+            double wz = rotQ.W * rotQ.Z;
+            double m00 = 1 - (2 * (yy + zz));
+            double m01 = 2 * (xy - wz);
+            double m02 = 2 * (xz + wy);
+            double m10 = 2 * (xy + wz);
+            double m11 = 1 - (2 * (xx + zz));
+            double m12 = 2 * (yz - xw);
+            double m20 = 2 * (xz - wy);
+            double m21 = 2 * (yz + xw);
+            double m22 = 1 - (2 * (xx + yy));
+            return new Matrix([
+                m00,
+                m01,
+                m02,
+                0,
+                m10,
+                m11,
+                m12,
+                0,
+                m20,
+                m21,
+                m22,
+                0,
+                0, 0, 0, 1,
+            ]);
+        }
+
+        /// <summary>
+        /// Get transformation around a point that isn't the origin.
+        /// </summary>
+        /// <param name="transformation">transformation matrix.</param>
+        /// <param name="transOrigin">new origin point.</param>
+        /// <returns>new transformation matrix.</returns>
+        public static Matrix TransformAround(Matrix transformation, Vector3 transOrigin)
+        {
+            Matrix translateToPoint = Translate(transOrigin);
+            return translateToPoint.GetInverted * transformation * translateToPoint;
+        }
+
+        /// <summary>
+        /// Transform coordinates from NDC to Screen Space Coordinates.
+        /// </summary>
+        /// <param name="clientBuffer">client buffer.</param>
+        /// <returns>Final matrix.</returns>
+        public static Matrix NdcToScreenCoordinates(ClientBuffer clientBuffer)
+        {
+            double[,] mValues = new double[Size, Size]
+            {
+                { clientBuffer.Width * 0.5, 0, 0, 0 },
+                { 0, -clientBuffer.Height * 0.5, 0, 0 },
+                { 0, 0, clientBuffer.MaxZ - clientBuffer.MinZ, 0 },
+                { clientBuffer.X + (clientBuffer.Width * 0.5), clientBuffer.Y + (clientBuffer.Height * 0.5), clientBuffer.MinZ, 1 },
+            };
+            return new Matrix(mValues);
+        }
+
+        /// TODO: Understand the transformation matrix...
+        /// <summary>
+        /// Build a world space to camera space matrix
+        /// </summary>
+        /// <param name="eye">Eye (camera) position in world space.</param>
+        /// <param name="target">Target position in world .</param>
+        /// <param name="up">Up vector in world space (should not be parallel to the camera direction, that is target - eye)</param>
+        /// <returns>A Matrix that transforms world space to camera .</returns>
+        /// <remarks>Taken from OpenTK.Mathematics/Matrix/Matrix4d.</remarks>
+        public static Matrix ViewMatrix(Vector3 eye, Vector3 target, Vector3 up)
+        {
+            Vector3 z = Vector3.Normalize(eye - target);
+            Vector3 x = up.Cross(z);
+            Vector3 y = z.Cross(x);
+
+            Matrix rot = new Matrix(
+               [new Vector4(x.X, y.X, z.X, 0.0),
+                new Vector4(x.Y, y.Y, z.Y, 0.0),
+                new Vector4(x.Z, y.Z, z.Z, 0.0),
+                new Vector4(-eye.Dot(x), -eye.Dot(y), -eye.Dot(z), 1)]);
+
+            return rot;
+        }
+
+        /// <summary>
+        /// Creates a perspective projection matrix.
+        /// </summary>
+        /// <param name="fovy">Angle of the field of view in the y direction (in radians).</param>
+        /// <param name="aspect">Aspect ratio of the view (width / height).</param>
+        /// <param name="depthNear">Distance to the near clip plane.</param>
+        /// <param name="depthFar">Distance to the far clip plane.</param>
+        /// <returns>A perspective projection matrix.</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Thrown under the following conditions:
+        ///  <list type="bullet">
+        ///  <item>fovy is zero, less than zero or larger than Math.PI</item>
+        ///  <item>aspect is negative or zero</item>
+        ///  <item>depthNear is negative or zero</item>
+        ///  <item>depthFar is negative or zero</item>
+        ///  <item>depthNear is larger than depthFar</item>
+        ///  </list>
+        /// </exception>
+        public static Matrix PerspectiveMatrix(double fovy, double aspect, double depthNear, double depthFar)
+        {
+            if (fovy <= 0 || fovy > Math.PI)
+            {
+                throw new ArgumentOutOfRangeException(nameof(fovy));
+            }
+
+            if (aspect <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(aspect));
+            }
+
+            if (depthNear <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(depthNear));
+            }
+
+            if (depthFar <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(depthFar));
+            }
+
+            double fovScale = 1 / Math.Tan(fovy * 0.5);
+            double x = fovScale * aspect;
+            double y = fovScale;
+            double zScale = (depthFar + depthNear) / (depthNear - depthFar);
+            double wScale = 2 * (depthFar * depthNear) / (depthNear - depthFar);
+
+            return new Matrix([
+                x, 0, 0, 0,
+                0, y, 0, 0,
+                0, 0, zScale, -1,
+                0, 0, wScale, 0]);
+        }
+
+        /// <summary>
+        /// Transform each point according to the transformation matrix.
+        /// </summary>
+        /// <param name="transformationMatrix">transformation matrix.</param>
+        /// <param name="vectors">vectors to be transformed.</param>
+        /// <returns>array of vectors after transformations.</returns>
+        public static IEnumerable<Vector3> TransformPoints(Matrix transformationMatrix, IEnumerable<Vector3> vectors)
+        {
+            return vectors.Select<Vector3, Vector3>((vector) =>
+            {
+                Vector4 multipliedVector = transformationMatrix * vector;
+                for (int i = 0; i < 4; i++)
+                {
+                    multipliedVector[i] /= multipliedVector.W;
+                }
+                return multipliedVector;
+            });
         }
 
         #endregion
@@ -842,7 +980,7 @@ namespace SoftRenderer.Math
         }
 
         /// <summary>
-        /// Multiplies a vector with a matrix (row major)
+        /// Multiplies a vector with a matrix (col major)
         /// </summary>
         /// <param name="matrix">The matrix.</param>
         /// <param name="vector">The vector.</param>
@@ -853,12 +991,8 @@ namespace SoftRenderer.Math
 
             for (int i = 0; i < 4; i++)
             {
-                var multipliedVector = matrix[i] * vector;
+                var multipliedVector = Matrix.GetCol(i, matrix) * vector;
                 newVec[i] = Vector4.DotProduct(multipliedVector);
-            }
-            for (int i = 0; i < 4; i++)
-            {
-                newVec[i] /= newVec.W;
             }
             return newVec;
         }
@@ -869,7 +1003,7 @@ namespace SoftRenderer.Math
         /// <param name="matrix">The matrix.</param>
         /// <param name="vector">The vector3.</param>
         /// <returns>The product of the matrix and vector.</returns>
-        public static Vector3 operator *(Matrix matrix, Vector3 vector) => matrix * new Vector4(vector, 1);
+        public static Vector4 operator *(Matrix matrix, Vector3 vector) => matrix * new Vector4(vector, 1);
 
         #endregion Operators
     }

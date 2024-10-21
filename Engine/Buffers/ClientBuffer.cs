@@ -59,7 +59,10 @@ namespace SoftRenderer.Engine.Buffers
         /// <summary>
         /// Gets the aspect ratio, which is the ratio of the width to the height.
         /// </summary>
-        public double AspectRatio => (double)this.Width / this.Height;
+        public double AspectRatio
+        {
+            get => (double)this.Height / this.Width;
+        }
 
 
         /// <summary>

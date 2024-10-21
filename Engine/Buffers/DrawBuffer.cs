@@ -28,12 +28,9 @@ namespace SoftRenderer.Engine.Buffers
             this.Graphics = Graphics.FromImage(this.BitMap);
         }
 
-        private byte[] CreateDrawBufferArray(Size size)
-        {
-            this.Stride = size.Width * 4;
-            return new byte[this.Stride * size.Height];
-        }
-
+        /// <summary>
+        /// Move changed data to draw buffer bitmap.
+        /// </summary>
         public void MoveToDrawBuffer()
         {
             BitmapData drawBufferData = this.BitMap.LockBits(this.DrawBufferRectangle, ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
@@ -61,7 +58,6 @@ namespace SoftRenderer.Engine.Buffers
         /// Int Ptr to Draw Buffer.
         /// </summary>
         // public IntPtr DrawBufferPtr { get; }
-
         public int Stride { get; private set; }
 
         /// <summary>
@@ -105,6 +101,12 @@ namespace SoftRenderer.Engine.Buffers
         public void Dispose()
         {
             this.DestroyDrawBuffer();
+        }
+
+        private byte[] CreateDrawBufferArray(Size size)
+        {
+            this.Stride = size.Width * 4;
+            return new byte[this.Stride * size.Height];
         }
 
         /// <summary>
