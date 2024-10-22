@@ -414,17 +414,6 @@ namespace SoftRenderer.Math
         }
 
         /// <summary>
-        /// Calculates the dot product of a single vector
-        /// </summary>
-        /// <param name="a">The vector.</param>
-        /// <returns>added vector.</returns>
-        public static double DotProduct(Vector3 a)
-        {
-            Vector3 b = new Vector3();
-            return (a.X * b.X) + (a.Y * b.Y) + (a.Z * b.Z);
-        }
-
-        /// <summary>
         /// Determine the cross product of two Vectors.
         /// Determine the vector product.
         /// Determine the normal vector (Vector3 90° to the plane).

@@ -170,7 +170,7 @@ namespace SoftRenderer.Math
             {
                 for (int y = 0; y <= 3; y++)
                 {
-                    builder.Append($"| {this[y, x]} |");
+                    builder.Append($"|*{this[y, x]}*|");
                 }
 
                 builder.AppendLine();
@@ -754,10 +754,10 @@ namespace SoftRenderer.Math
             Vector3 y = z.Cross(x);
 
             Matrix rot = new Matrix(
-               [new Vector4(x.X, y.X, z.X, 0.0),
-                new Vector4(x.Y, y.Y, z.Y, 0.0),
-                new Vector4(x.Z, y.Z, z.Z, 0.0),
-                new Vector4(-eye.Dot(x), -eye.Dot(y), -eye.Dot(z), 1)]);
+               [new Vector4(x.X, y.X, z.X, 0),
+                new Vector4(x.Y, y.Y, z.Y, 0),
+                new Vector4(x.Z, y.Z, z.Z, 0),
+                new Vector4(-x.Dot(eye), -y.Dot(eye), -z.Dot(eye), 1)]);
 
             return rot;
         }
@@ -805,8 +805,8 @@ namespace SoftRenderer.Math
             double fovScale = 1 / Math.Tan(fovy * 0.5);
             double x = fovScale * aspect;
             double y = fovScale;
-            double zScale = (depthFar + depthNear) / (depthNear - depthFar);
-            double wScale = 2 * (depthFar * depthNear) / (depthNear - depthFar);
+            double zScale = (depthFar) / (depthNear - depthFar);
+            double wScale =  (zScale * depthNear);
 
             return new Matrix([
                 x, 0, 0, 0,

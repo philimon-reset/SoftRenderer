@@ -27,7 +27,7 @@ namespace SoftRenderer.Engine.Render
         /// <summary>
         /// Factor by which we shrink view port to draw buffer.
         /// </summary>
-        private readonly int resizeFactor;
+        private const int ResizeFactor = 1;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RenderBase"/> class.
@@ -36,7 +36,6 @@ namespace SoftRenderer.Engine.Render
         protected RenderBase(IRenderBaseArgs renderBaseArgs)
         {
             // Renerbase arg values.
-            this.resizeFactor = 1;
             this.HostHandle = renderBaseArgs.HostHandle;
             this.HostInput = renderBaseArgs.Input;
 
@@ -49,7 +48,7 @@ namespace SoftRenderer.Engine.Render
             this.ClientBuffer = new ClientBuffer(clientBufferSize, 0, 0);
 
             // Set size of draw buffer.
-            this.DrawBuffer = new DrawBuffer(new Size(this.ClientBuffer.Size.Width / this.resizeFactor, this.ClientBuffer.Size.Height / this.resizeFactor));
+            this.DrawBuffer = new DrawBuffer(new Size(this.ClientBuffer.Size.Width / ResizeFactor, this.ClientBuffer.Size.Height / ResizeFactor));
 
             // Event Hooking.
             this.HostInput.SizeChanged += this.ScreenResize;
@@ -72,9 +71,9 @@ namespace SoftRenderer.Engine.Render
 
 
         /// <summary>
-        /// Gets or sets size of the entire form.
+        /// Gets size of the entire form.
         /// </summary>
-        protected Size FormSize { get; set; }
+        protected Size FormSize { get; private set; }
 
         /// <summary>
         /// Gets client Buffer struct
@@ -82,14 +81,19 @@ namespace SoftRenderer.Engine.Render
         protected ClientBuffer ClientBuffer { get; private set; }
 
         /// <summary>
-        /// Gets or sets draw Buffer instance to work with bitmap.
+        /// Gets draw Buffer instance to work with bitmap.
         /// </summary>
-        protected DrawBuffer DrawBuffer { get; set; }
+        protected DrawBuffer DrawBuffer { get; private set; }
 
         /// <summary>
         /// Gets or sets total fps data.
         /// </summary>
         protected FPSCounter RendererFps { get; set; }
+
+        /// <summary>
+        /// Gets start of the render.
+        /// </summary>
+        protected DateTime FrameStart { get; private set; }
 
         /// <inheritdoc/>
         public virtual void Dispose()
@@ -112,6 +116,7 @@ namespace SoftRenderer.Engine.Render
         public virtual void Render()
         {
             this.RendererFps.StartFrame();
+            this.FrameStart = DateTime.Now;
             this.RenderInternal();
             this.RendererFps.EndFrame();
         }
@@ -161,7 +166,7 @@ namespace SoftRenderer.Engine.Render
             }
 
             this.ResizeClientBuffer(size);
-            this.ResizeBuffer(new Size(size.Width / this.resizeFactor, size.Height / this.resizeFactor));
+            this.ResizeBuffer(new Size(size.Width / ResizeFactor, size.Height / ResizeFactor));
         }
 
         /// <summary>

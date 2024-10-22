@@ -4,6 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+#nullable enable
 namespace SoftRenderer.Engine.Render.Technique.Rasterizer
 {
     using System;
@@ -11,19 +12,47 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
     using System.Drawing;
     using System.Linq;
     using System.Threading;
-    using System.Threading.Tasks;
     using System.Windows.Forms;
-    using System.Windows.Media.Media3D;
-    using Driver.GDI;
-    using Math;
     using RCi.Tutorials.Gfx.Mathematics;
+    using SoftRenderer.Engine.Render.Driver.GDI;
+    using SoftRenderer.Math;
 
     /// <summary>
-    ///     Rasterizer Render Port.
+    /// Rasterizer Render Port.
     /// </summary>
     public class Rasterizer : RenderBaseGdi
     {
-        private Dictionary<char, double> Axis;
+        private static readonly Vector3[][] CubePolylines = new[]
+        {
+            new[]
+            {
+                new Vector3(0, 0, 0),
+                new Vector3(1, 0, 0),
+                new Vector3(1, 1, 0),
+                new Vector3(0, 1, 0),
+                new Vector3(0, 0, 0),
+            },
+            new[]
+            {
+                new Vector3(0, 0, 1),
+                new Vector3(1, 0, 1),
+                new Vector3(1, 1, 1),
+                new Vector3(0, 1, 1),
+                new Vector3(0, 0, 1),
+            },
+            new[] { new Vector3(0, 0, 0), new Vector3(0, 0, 1), },
+            new[] { new Vector3(1, 0, 0), new Vector3(1, 0, 1), },
+            new[] { new Vector3(1, 1, 0), new Vector3(1, 1, 1), },
+            new[] { new Vector3(0, 1, 0), new Vector3(0, 1, 1), },
+        }.Select(cubePolyline =>
+        {
+            Matrix transform = Matrix.Translate(-0.5, -0.5, -0.5);
+            var transformed = Matrix.TransformPoints(transform, cubePolyline);
+            return transformed.ToArray();
+        }).ToArray();
+
+        private Dictionary<char, double> _axis;
+
         /// <summary>
         ///     Initializes a new instance of the <see cref="Rasterizer" /> class.
         ///     Rasterization Render constructor.
@@ -32,7 +61,7 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
         public Rasterizer(IRenderBaseArgs renderBaseArgs)
             : base(renderBaseArgs)
         {
-            this.Axis = new Dictionary<char, double>() { {'X', 1}, {'Y', 0}, {'Z', 0}};
+            this._axis = new Dictionary<char, double>() { { 'X', 0 }, { 'Y', 0 }, { 'Z', 1 } };
             this.RunGame = true;
             this.SleepTime = 0;
             this.HostInput.KeyDown += this.HandleKeyPress;
@@ -53,11 +82,11 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
                 {
                     Thread.Sleep(this.SleepTime);
                 }
+
                 this.DrawWorldAxis();
-                // this.DrawGeometry();
+                this.DrawGeometry();
 
                 // this.DrawBuffer.MoveToDrawBuffer();
-
                 #region commented
 
                 // asynchronous safe render (move buffer)
@@ -99,7 +128,6 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
                 // }
 
                 // this.DrawBuffer.MoveToDrawBuffer();
-
                 #endregion
 
             }
@@ -109,21 +137,7 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             }
 
             // Draw bitmap to buffer
-            Point clientBufferPoint = new Point(this.ClientBuffer.X, this.ClientBuffer.Y);
-            graphics.DrawString($"X: {this.Axis['X']}", this.FpsFont, Brushes.Yellow, new PointF(clientBufferPoint.X + (this.ClientBuffer.Width / 2), clientBufferPoint.Y));
-            graphics.DrawString($"Y: {this.Axis['Y']}", this.FpsFont, Brushes.Yellow, new PointF(clientBufferPoint.X + (this.ClientBuffer.Width / 2), clientBufferPoint.Y + 20));
-            graphics.DrawString($"Z: {this.Axis['Z']}", this.FpsFont, Brushes.Yellow, new PointF(clientBufferPoint.X + (this.ClientBuffer.Width / 2), clientBufferPoint.Y + 40));
             this.ClientBufferedGraphics.Graphics.DrawImage(this.DrawBuffer.BitMap, new RectangleF(Point.Empty, this.ClientBuffer.Size), new RectangleF(new PointF(-1F, -1F), this.DrawBuffer.Size), GraphicsUnit.Pixel);
-        }
-
-        private void DrawWorldAxis()
-        {
-            Vector3[] xAxis = {new Vector3(0, 0, 0), new Vector3(1, 0, 0) };
-            Vector3[] yAxis = {new Vector3(0, 0, 0), new Vector3(0, 1, 0) };
-            Vector3[] zAxis = {new Vector3(0, 0, 0), new Vector3(0, 0, 1) };
-            this.DrawPolyline(xAxis, Space.World, new Pen(Color.Aqua));
-            this.DrawPolyline(yAxis, Space.World, new Pen(Color.Red));
-            this.DrawPolyline(zAxis, Space.World, new Pen(Color.Blue));
         }
 
         /// <inheritdoc />
@@ -133,27 +147,36 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             this.HostInput.KeyDown -= this.HandleKeyPress;
         }
 
+        private void DrawWorldAxis()
+        {
+            Vector3[] xAxis =[ new Vector3(0, 0, 0), new Vector3(1, 0, 0)];
+            Vector3[] yAxis =[ new Vector3(0, 0, 0), new Vector3(0, 1, 0)];
+            Vector3[] zAxis =[ new Vector3(0, 0, 0), new Vector3(0, 0, 1)];
+            this.DrawPolyline(xAxis, Space.World, new Pen(Color.Aqua));
+            this.DrawPolyline(yAxis, Space.World, new Pen(Color.Red));
+            this.DrawPolyline(zAxis, Space.World, new Pen(Color.Blue));
+        }
+
         private void DrawPolyline(IEnumerable<Vector3> points, Space space, Pen pen)
         {
             Matrix clientView = Matrix.NdcToScreenCoordinates(this.ClientBuffer);
+            Vector3 up = Vector3.YAxis;
             switch (space)
             {
                 case Space.World:
-                    DateTime utcNow = DateTime.UtcNow;
-                    var t = GetAnimationTime(new TimeSpan(0, 0, 0, 10), utcNow);
+                    var t = this.GetDeltaTime(new TimeSpan(0, 0, 0, 10));
                     var angle = t * Math.PI * 2;
                     var radius = 2;
                     // View Matrix
-                    Vector3 camera = new Vector3(0.5, Math.Cos(angle) * radius, 1);
-                    Vector3 up = Vector3.YAxis;
-                    Vector3 target = new Vector3();
-                    Matrix viewMatrix = Matrix.ViewMatrix(camera, target, up);
+                    var camera = new Vector3(Math.Sin(angle) * radius, Math.Cos(angle) * radius, 1);
+                    var target = new Vector3();
+                    var viewMatrix = Matrix.ViewMatrix(camera, target, up);
 
                     // Projection Matrix
-                    double fov = Math.PI * 0.5;
+                    const double fov = Math.PI * 0.5;
                     double znear = 0.001;
                     double zfar = 1000;
-                    Matrix projectionMatrix = Matrix.PerspectiveMatrix(fov, (double)this.DrawBuffer.Height / this.DrawBuffer.Width, znear, zfar);
+                    var projectionMatrix = Matrix.PerspectiveMatrix(fov, (double)this.DrawBuffer.Height / this.DrawBuffer.Width, znear, zfar);
                     Matrix transMatrix = viewMatrix * projectionMatrix * clientView;
                     var finalViews = Matrix.TransformPoints(transMatrix, points);
                     this.DrawPolylineScreenSpace(finalViews, pen);
@@ -218,8 +241,8 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             var periodDuration = new TimeSpan(0, 0, 0, 5, 0);
             DateTime utcNow = DateTime.UtcNow;
             double t = GetAnimationTime(periodDuration, utcNow);
-            var sinT = Math.Sin(t * Math.PI * 2);
-            
+            double sinT = Math.Sin(t * Math.PI * 2);
+
             // translate
             Matrix transform1 = Matrix.Translate(sinT * 40.0, 0.0, 0.0) * Matrix.Translate(50, 100, 0);
             Matrix transform2 = Matrix.Translate(sinT * 0.1, 0, 0) * Matrix.Translate(-0.8, 0, 0);
@@ -274,37 +297,37 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
                     this.SleepTime += 100;
                     break;
                 case Keys.X:
-                    if (this.Axis['X'] < 2)
+                    if (this._axis['X'] < 2)
                     {
-                        this.Axis['X'] += 0.1;
+                        this._axis['X'] += 0.1;
                     }
                     else
                     {
-                        this.Axis['X'] = 0;
+                        this._axis['X'] = 0;
                     }
-                    Console.WriteLine($"X: {this.Axis['X']}");
+
                     break;
                 case Keys.Y:
-                    if (this.Axis['Y'] < 2)
+                    if (this._axis['Y'] < 2)
                     {
-                        this.Axis['Y'] += 0.1;
+                        this._axis['Y'] += 0.1;
                     }
                     else
                     {
-                        this.Axis['Y'] = 0;
+                        this._axis['Y'] = 0;
                     }
-                    Console.WriteLine($"Y: {this.Axis['Y']}");
+
                     break;
                 case Keys.Z:
-                    if (this.Axis['Z'] < 2)
+                    if (this._axis['Z'] < 2)
                     {
-                        this.Axis['Z'] += 0.1;
+                        this._axis['Z'] += 0.1;
                     }
                     else
                     {
-                        this.Axis['Z'] = 0;
+                        this._axis['Z'] = 0;
                     }
-                    Console.WriteLine($"Z: {this.Axis['Z']}");
+
                     break;
                 case Keys.Left:
                     this.SleepTime -= this.SleepTime > 0 ? 100 : 0;
@@ -319,51 +342,23 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
                     break;
             }
         }
-        private static readonly Vector3[][] CubePolylines = new[]
-        {
-            new[]
-            {
-                new Vector3(0, 0, 0),
-                new Vector3(1, 0, 0),
-                new Vector3(1, 1, 0),
-                new Vector3(0, 1, 0),
-                new Vector3(0, 0, 0),
-            },
-            new[]
-            {
-                new Vector3(0, 0, 1),
-                new Vector3(1, 0, 1),
-                new Vector3(1, 1, 1),
-                new Vector3(0, 1, 1),
-                new Vector3(0, 0, 1),
-            },
-            new[] { new Vector3(0, 0, 0), new Vector3(0, 0, 1), },
-            new[] { new Vector3(1, 0, 0), new Vector3(1, 0, 1), },
-            new[] { new Vector3(1, 1, 0), new Vector3(1, 1, 1), },
-            new[] { new Vector3(0, 1, 0), new Vector3(0, 1, 1), },
-        }.Select(cubePolyline =>
-        {
-            var transform = Matrix.Translate(-0.5, -0.5, -0.5);
-            var transformed = Matrix.TransformPoints(transform, cubePolyline);
-            return transformed.ToArray();
-        }).ToArray();
 
         private void DrawGeometry()
         {
             // bigger cube
-            var angle = GetDeltaTime(new TimeSpan(0, 0, 0, 5)) * Math.PI * 2;
-            var matrixModel =
+            double angle = this.GetDeltaTime(new TimeSpan(0, 0, 0, 5)) * Math.PI * 2;
+            Matrix matrixModel =
                 Matrix.Scale(0.5) *
                 Matrix.Rotate(angle, new Vector3(1, 0, 0)) *
                 Matrix.Translate(1, 0, 0);
 
             foreach (var cubePolyline in CubePolylines)
             {
-                DrawPolyline(Matrix.TransformPoints(matrixModel, cubePolyline), Space.World, Pens.White);
+                this.DrawPolyline(Matrix.TransformPoints(matrixModel, cubePolyline), Space.World, Pens.White);
             }
 
             // smaller cube
-            angle = GetDeltaTime(new TimeSpan(0, 0, 0, 1)) * Math.PI * 2;
+            angle = this.GetDeltaTime(new TimeSpan(0, 0, 0, 1)) * Math.PI * 2;
             matrixModel =
                 Matrix.Scale(0.5) *
                 Matrix.Rotate(angle, new Vector3(0, 1, 0)) *
@@ -372,23 +367,20 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
 
             foreach (var cubePolyline in CubePolylines)
             {
-                DrawPolyline(Matrix.TransformPoints(matrixModel, cubePolyline), Space.World, Pens.Yellow);
+                this.DrawPolyline(Matrix.TransformPoints(matrixModel, cubePolyline), Space.World, Pens.Yellow);
             }
         }
+
         private double GetDeltaTime(TimeSpan periodDuration)
         {
-            DateTime utcNow = DateTime.UtcNow;
-            return GetAnimationTime(periodDuration, utcNow);
+            return GetAnimationTime(periodDuration, this.FrameStart);
         }
-        
+
         private void SetRandomColor(int x, int y)
         {
             // Combine boundary checks into one statement for clarity
             double t = DateTime.UtcNow.Millisecond / 1000.0;
-            int pixelIdx = y * this.DrawBuffer.Stride + x * 4;
-            // int y = pixelIdx / this.DrawBuffer.Width;
-            // int x = pixelIdx - (y * this.DrawBuffer.Width);
-            // this.DrawBuffer.DrawBufferBytesArray[pixelIdx] = this.GetColor(x, y).ToArgb();
+            int pixelIdx = (y * this.DrawBuffer.Stride) + (x * 4);
             this.DrawBuffer.DrawBufferBytesArray[pixelIdx] = (byte)(Math.Sin(t * Math.PI) * byte.MaxValue); // Blue
             this.DrawBuffer.DrawBufferBytesArray[pixelIdx + 1] = (byte)((double)y / this.DrawBuffer.Height * byte.MaxValue); // Green
             this.DrawBuffer.DrawBufferBytesArray[pixelIdx + 2] = (byte)((double)x / this.DrawBuffer.Width * byte.MaxValue); // Red
