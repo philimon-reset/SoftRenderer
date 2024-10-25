@@ -1,132 +1,20 @@
-# SoftRenderer
+# Conway's Game of Life
 
-## Overview
+This project is an implementation of Conway's Game of Life built with a custom C# renderer. The Game of Life is a cellular automaton devised by mathematician John Conway, where cells on a grid live, die, or reproduce based on a set of simple rules.
 
-This project is a 3D rendering engine implemented in pure C#, which supports both **rasterization** and **ray tracing** rendering techniques. The goal is to provide an efficient and flexible renderer that can showcase real-time graphics using a rasterizer and high-quality offline rendering with a ray tracer.
-
-### Key Features
-
-- **Rasterizer**: Implements a real-time renderer using techniques such as z-buffering, shading, and texturing.
-- **Ray Tracer**: Implements a path-tracing ray tracer supporting reflections, refractions, shadows, and global illumination.
-- **Material Support**: Supports different materials like Lambertian, Phong, and specular reflection models.
-- **Lighting**: Implements point, directional, and ambient lighting models.
-- **Anti-aliasing**: Optional supersampling for smoother images.
-- **Scene Parsing**: Load 3D models from OBJ files.
-- **Multithreading**: Parallel rendering using multithreading for performance optimization in ray tracing.
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Usage](#usage)
-- [Renderer Features](#renderer-features)
-- [Contributing](#contributing)
-- [License](#license)
-
-## Installation
-
-### Prerequisites
-
-- [.NET Core SDK 6.0 or higher](https://dotnet.microsoft.com/download/dotnet/6.0)
-- A text editor or IDE (Visual Studio or JetBrains Rider recommended)
-
-### Steps to Install
-
-1. Clone the repository:
-
-    ```bash
-    git clone https://github.com/philimon-reset/SoftRenderer.git
-    cd SoftRenderer
-    ```
-
-2. Restore the .NET packages:
-
-    ```bash
-    dotnet restore
-    ```
-
-3. Build the project:
-
-    ```bash
-    dotnet build
-    ```
-
-4. Run the project:
-
-    ```bash
-    dotnet run
-    ```
-
-## Usage
-
-### Running the Rasterizer
-
-The rasterizer renders the scene in real-time. You can run it by specifying the `-rasterize` flag.
-
-```bash
-dotnet run -- -rasterize
-```
-
-### Running the Ray Tracer
-
-The ray tracer provides high-quality, realistic images. Use the `-raytrace` flag to run it.
-
-```bash
-dotnet run -- -raytrace
-```
-
-### Configuration Options
-
-- **Input Model**: Provide a `.obj` file to load a custom 3D model.
-
-    ```bash
-    dotnet run -- -rasterize -input model.obj
-    ```
-
-- **Resolution**: Specify output resolution.
-
-    ```bash
-    dotnet run -- -raytrace -resolution 1920x1080
-    ```
-
-- **Samples per pixel**: For the ray tracer, adjust the number of samples per pixel to improve image quality (anti-aliasing).
-
-    ```bash
-    dotnet run -- -raytrace -samples 100
-    ```
-
-- **Multithreading**: Control the number of threads used for rendering.
-
-    ```bash
-    dotnet run -- -raytrace -threads 8
-    ```
-
-## Renderer Features
-
-### Rasterizer
-- **Z-Buffering**: Depth-buffering technique to determine visible surfaces.
-- **Shading Models**: Flat shading, Gouraud shading, Phong shading.
-- **Texturing**: Support for texture mapping using UV coordinates.
-- **Culling**: Back-face culling to optimize rendering performance.
+## Features
+- **Interactive Gameplay:** Users can start the game by seeding initial cells on the grid and pressing **Enter** to begin.
+- **Real-Time Updates:** The grid updates in real-time, displaying the next generation of cells based on Conway's rules.
+- **Pause and Modify:** Press **Esc** to pause the game, allowing you to add new cells to the grid before resuming.
   
-### Ray Tracer
-- **Shadows**: Accurate shadow calculation using ray intersections.
-- **Reflections**: Specular reflections based on material properties.
-- **Refractions**: Transparent materials with customizable index of refraction.
-- **Global Illumination**: Simulates light bouncing for more realistic lighting.
-
-## Contributing
-
-Contributions are welcome! Please open an issue or submit a pull request.
-
-### Development Guidelines
-
-- Document your code using StyleCop comments.
-
-### Future Improvements
-
-- Add support for complex lighting models like PBR (Physically Based Rendering).
-- Support GPU-accelerated rendering (using Vulkan or DirectX).
-
-## License
-
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+## Controls
+- **Enter**: Start or resume the game.
+- **Esc**: Pause the game and enable cell editing.
+  
+## How to Play
+1. Seed cells by selecting points on the grid.
+2. Press **Enter** to start the game.
+3. To pause and add new cells, press **Esc**.
+4. Once paused, you can add more cells before pressing **Enter** to resume.
+5. Grid can be cleared by pressing **C**.
+6. Grid can be modified in the **WindowSeedFactor** File.
