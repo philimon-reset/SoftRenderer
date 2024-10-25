@@ -87,6 +87,7 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
                 this.DrawGeometry();
 
                 // this.DrawBuffer.MoveToDrawBuffer();
+
                 #region commented
 
                 // asynchronous safe render (move buffer)
@@ -128,6 +129,7 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
                 // }
 
                 // this.DrawBuffer.MoveToDrawBuffer();
+
                 #endregion
 
             }
@@ -137,7 +139,7 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             }
 
             // Draw bitmap to buffer
-            this.ClientBufferedGraphics.Graphics.DrawImage(this.DrawBuffer.BitMap, new RectangleF(Point.Empty, this.ClientBuffer.Size), new RectangleF(new PointF(-1F, -1F), this.DrawBuffer.Size), GraphicsUnit.Pixel);
+            this.ClientBufferedGraphics.Graphics.DrawImage(this.DrawBuffer.BitMap, new RectangleF(Point.Empty, this.FormSize), new RectangleF(new PointF(-1F, -1F), this.DrawBuffer.Size), GraphicsUnit.Pixel);
         }
 
         /// <inheritdoc />
@@ -159,25 +161,14 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
 
         private void DrawPolyline(IEnumerable<Vector3> points, Space space, Pen pen)
         {
-            Matrix clientView = Matrix.NdcToScreenCoordinates(this.ClientBuffer);
-            Vector3 up = Vector3.YAxis;
+            Matrix clientView = this.MyCameraInfo.Materalization.ClientViewMatrix;
             switch (space)
             {
                 case Space.World:
                     var t = this.GetDeltaTime(new TimeSpan(0, 0, 0, 10));
                     var angle = t * Math.PI * 2;
                     var radius = 2;
-                    // View Matrix
-                    var camera = new Vector3(Math.Sin(angle) * radius, Math.Cos(angle) * radius, 1);
-                    var target = new Vector3();
-                    var viewMatrix = Matrix.ViewMatrix(camera, target, up);
-
-                    // Projection Matrix
-                    const double fov = Math.PI * 0.5;
-                    double znear = 0.001;
-                    double zfar = 1000;
-                    var projectionMatrix = Matrix.PerspectiveMatrix(fov, (double)this.DrawBuffer.Height / this.DrawBuffer.Width, znear, zfar);
-                    Matrix transMatrix = viewMatrix * projectionMatrix * clientView;
+                    Matrix transMatrix = this.MyCameraInfo.Materalization.ViewPerspectiveProjClientMatrix;
                     var finalViews = Matrix.TransformPoints(transMatrix, points);
                     this.DrawPolylineScreenSpace(finalViews, pen);
                     break;

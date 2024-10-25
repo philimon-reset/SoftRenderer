@@ -7,14 +7,18 @@
 namespace SoftRenderer.Engine.Render
 {
     using System;
+    using System.Collections.Generic;
     using System.Drawing;
     using System.Threading;
     using System.Windows.Forms;
-    using Buffers;
     using SoftRenderer.Client.FPSCounter;
+    using SoftRenderer.Engine.Buffers;
+    using SoftRenderer.Engine.Camera;
     using SoftRenderer.Engine.Input;
     using SoftRenderer.Engine.Input.EventArgs;
-    using SoftRenderer.Utility.Util;
+    using SoftRenderer.Engine.Input.Operator;
+    using SoftRenderer.Engine.Input.Operator.Operators;
+    using SoftRenderer.Math;
 
     /// <summary>
     /// Represents a vector in three-dimensional space.
@@ -25,33 +29,66 @@ namespace SoftRenderer.Engine.Render
     public abstract class RenderBase : IRenderBase
     {
         /// <summary>
-        /// Factor by which we shrink view port to draw buffer.
-        /// </summary>
-        private const int ResizeFactor = 1;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="RenderBase"/> class.
         /// </summary>
         /// <param name="renderBaseArgs"> Given host handle. </param>
         protected RenderBase(IRenderBaseArgs renderBaseArgs)
         {
-            // Renerbase arg values.
+            // Render base arg values.
             this.HostHandle = renderBaseArgs.HostHandle;
             this.HostInput = renderBaseArgs.Input;
 
             // Form control of the form.
-            this.FormControl = Util.GetForm(this.HostHandle);
-            this.FormSize = this.FormControl.Size;
+            this.FormSize = this.HostInput.Size;
 
-            // set client buffer.
+            // set Up client buffer
             Size clientBufferSize = this.FormSize;
-            this.ClientBuffer = new ClientBuffer(clientBufferSize, 0, 0);
+            var clientBuffer = new ClientBuffer(clientBufferSize, 0, 0);
 
-            // Set size of draw buffer.
-            this.DrawBuffer = new DrawBuffer(new Size(this.ClientBuffer.Size.Width / ResizeFactor, this.ClientBuffer.Size.Height / ResizeFactor));
+            // Set up draw buffer.
+            this.DrawBuffer = new DrawBuffer(new Size(clientBuffer.Width / 1, clientBuffer.Height / 1));
+
+            // View Matrix
+            var eye = new Vector3(0.6, 0.6, 1);
+            var target = new Vector3();
+
+            // Projection Matrix
+            double fov = Math.PI * 0.5;
+            double znear = 0.001;
+            double zfar = 1000;
+            var projection = new Projection(fov, (double)this.DrawBuffer.Height / this.DrawBuffer.Width, znear, zfar);
+
+            // camera info.
+            this.MyCameraInfo = new CameraInfo(eye, target, Vector3.ZAxis, projection, this.DrawBuffer.Size, clientBuffer);
 
             // Event Hooking.
-            this.HostInput.SizeChanged += this.ScreenResize;
+            this.Operators =[
+                new ResizeOperator(this, this.ResizeHost, this.ResizeClientBuffer),
+                new ZoomOperator(this),
+                new PanOperator(this)
+            ];
+
+            // Initial Resize
+            ResizeOperator.ResizeBuffers(this, this.FormSize, this.ResizeHost, this.ResizeClientBuffer);
+        }
+
+        /// <summary>
+        /// Event handler for camera change.
+        /// </summary>
+        public event EventHandler<ICameraInfo> CameraInfoChanged;
+
+        /// <summary>
+        /// Gets or sets camera info alongside buffer info.
+        /// </summary>
+        public CameraInfo MyCameraInfo
+        {
+            get => this._cameraInfo;
+
+            set
+            {
+                this._cameraInfo = value;
+                this.CameraInfoChanged?.Invoke(this, this._cameraInfo);
+            }
         }
 
         /// <summary>
@@ -60,61 +97,57 @@ namespace SoftRenderer.Engine.Render
         public IntPtr HostHandle { get; private set; }
 
         /// <summary>
-        /// Gets input handle for form.
+        /// Gets or sets total fps data.
         /// </summary>
-        protected IInput HostInput { get; private set; }
+        public FPSCounter RendererFps { get; set; }
 
         /// <summary>
-        /// Gets or sets form control.
+        /// Gets start of the render.
         /// </summary>
-        protected Control FormControl { get; set; }
+        public DateTime FrameStart { get; private set; }
 
+        /// <summary>
+        /// Gets input handle for form.
+        /// </summary>
+        public IInput HostInput { get; private set; }
 
         /// <summary>
         /// Gets size of the entire form.
         /// </summary>
-        protected Size FormSize { get; private set; }
+        public Size FormSize { get; set; }
 
         /// <summary>
-        /// Gets client Buffer struct
+        /// Gets Resize operator.
         /// </summary>
-        protected ClientBuffer ClientBuffer { get; private set; }
+        protected List<IOperator> Operators { get; private set; }
 
         /// <summary>
         /// Gets draw Buffer instance to work with bitmap.
         /// </summary>
         protected DrawBuffer DrawBuffer { get; private set; }
 
-        /// <summary>
-        /// Gets or sets total fps data.
-        /// </summary>
-        protected FPSCounter RendererFps { get; set; }
-
-        /// <summary>
-        /// Gets start of the render.
-        /// </summary>
-        protected DateTime FrameStart { get; private set; }
+        private CameraInfo _cameraInfo { get; set; }
 
         /// <inheritdoc/>
         public virtual void Dispose()
         {
             // Dispose Properties.
             this.HostInput.Dispose();
+            this.Operators.ForEach((x) => x.Dispose());
             this.DestroyDrawBuffer();
 
             // Set properties to default.
             this.HostHandle = default;
             this.FormSize = default;
             this.HostInput = default;
-            this.ClientBuffer = default;
-
-            // Event dispose
-            this.HostInput!.SizeChanged -= this.ScreenResize;
+            this.MyCameraInfo = default;
+            this.Operators = default;
         }
 
         /// <inheritdoc/>
         public virtual void Render()
         {
+            this.EnsureBufferSize();
             this.RendererFps.StartFrame();
             this.FrameStart = DateTime.Now;
             this.RenderInternal();
@@ -136,17 +169,6 @@ namespace SoftRenderer.Engine.Render
         }
 
         /// <summary>
-        /// Resize Client Buffer size.
-        /// </summary>
-        /// <param name="argsNewSize">New size.</param>
-        protected virtual void ResizeClientBuffer(Size argsNewSize)
-        {
-            int x = (this.FormSize.Width - argsNewSize.Width) / 2;
-            int y = (this.FormSize.Height - argsNewSize.Height) / 2;
-            this.ClientBuffer = new ClientBuffer(argsNewSize, x, y);
-        }
-
-        /// <summary>
         /// Resize draw buffer size.
         /// </summary>
         /// <param name="argsNewSize">New size.</param>
@@ -156,17 +178,36 @@ namespace SoftRenderer.Engine.Render
             this.DrawBuffer = new DrawBuffer(argsNewSize);
         }
 
-        private void ScreenResize(object sender, ISizeChangeArgs args)
+        /// <summary>
+        /// Resize Client Buffer size.
+        /// </summary>
+        /// <param name="argsNewSize">New size.</param>
+        protected virtual void ResizeClientBuffer (Size argsNewSize)
         {
-            this.FormSize = args.NewSize;
-            Size size = args.NewSize;
-            if (size.Width < 1 || size.Height < 1)
-            {
-                size = new Size(1, 1);
-            }
+            int x = (this.FormSize.Width - argsNewSize.Width) / 2;
+            int y = (this.FormSize.Height - argsNewSize.Height) / 2;
+            var clientBuffer = new ClientBuffer(argsNewSize, x, y);
+            var drawBufferSize = new Size(clientBuffer.Width / ResizeOperator.ResizeFactor, clientBuffer.Height / ResizeOperator.ResizeFactor);
+            Projection projection = this.MyCameraInfo.Projection with { AspectRatio = (double)drawBufferSize.Height / drawBufferSize.Width };
+            this.MyCameraInfo = new CameraInfo(this.MyCameraInfo, projection, drawBufferSize, clientBuffer);
+        }
 
-            this.ResizeClientBuffer(size);
-            this.ResizeBuffer(new Size(size.Width / ResizeFactor, size.Height / ResizeFactor));
+        /// <summary>
+        /// Resize the host of the render base.
+        /// </summary>
+        /// <param name="newSize">new size.</param>
+        protected virtual void ResizeHost(Size newSize)
+        {
+            this.FormSize = newSize;
+        }
+
+        private void EnsureBufferSize()
+        {
+            var size = new Size(this.MyCameraInfo.ClientBuffer.Width / ResizeOperator.ResizeFactor, this.MyCameraInfo.ClientBuffer.Height / ResizeOperator.ResizeFactor);
+            if (this.DrawBuffer.Size != size)
+            {
+                this.ResizeBuffer(size);
+            }
         }
 
         /// <summary>

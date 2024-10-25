@@ -389,7 +389,7 @@ namespace SoftRenderer.Math
         }
 
         /// <summary>
-        /// Gets or sets the value at the specified index.
+        /// Gets the value at the specified index.
         /// </summary>
         /// <param name="i">The index.</param>
         /// <returns>The value at the specified index.</returns>
@@ -403,21 +403,6 @@ namespace SoftRenderer.Math
                 }
 
                 return this.mValues[i];
-            }
-
-            set
-            {
-                if (i is > 3 or < 0)
-                {
-                    throw new Exception("out of index range.");
-                }
-
-                if (value is not Vector4)
-                {
-                    throw new Exception("Not a vector.");
-                }
-
-                this.mValues[i] = value;
             }
         }
 

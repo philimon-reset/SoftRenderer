@@ -11,6 +11,7 @@ namespace SoftRenderer.Client
     using System.Collections.Generic;
     using System.Threading;
     using System.Windows.Forms;
+    using Engine.Render;
     using Math;
     using SoftRenderer.Engine;
     using SoftRenderer.Engine.Render.Technique.Canvas;
@@ -28,7 +29,7 @@ namespace SoftRenderer.Client
         /// </summary>
         public SoftRendererForm()
         {
-            this.RasterBase = WindowFactory.RenderBaseSeed(0) as Rasterizer;
+            this.RasterBase = WindowFactory.RendeZoomrBaseSeed(0) as Rasterizer;
             this.RenderBases = [this.RasterBase];
             while (Application.OpenForms.Count >= 1)
             {

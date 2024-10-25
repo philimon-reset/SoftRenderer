@@ -28,9 +28,6 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
             this.RendererFps = new FPSCounter(TimeSpan.FromSeconds(0.5));
             this.FpsFont = new Font("Arial", 12);
 
-            // Form control of the form.
-            this.FormControl ??= Util.GetForm(this.HostHandle);
-
             // Double buffer for rendering setup.
             // Note: Buffer is the whole screen.
             this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
@@ -77,10 +74,10 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         {
             base.Render();
             var graphics = this.ClientBufferedGraphics.Graphics;
-            Point clientBufferPoint = new Point(this.ClientBuffer.X, this.ClientBuffer.Y);
+            Point clientBufferPoint = new Point(this.MyCameraInfo.ClientBuffer.X, this.MyCameraInfo.ClientBuffer.Y);
             graphics.DrawString(this.RendererFps.ToString(), this.FpsFont, Brushes.Yellow, clientBufferPoint);
             graphics.DrawString($"FormSize: {this.FormSize.Width}, {this.FormSize.Height}", this.FpsFont, Brushes.MediumSlateBlue, clientBufferPoint.X, clientBufferPoint.Y + 20);
-            graphics.DrawString($"ClientView: {this.ClientBuffer.Width}, {this.ClientBuffer.Height}", this.FpsFont, Brushes.MediumSlateBlue, clientBufferPoint.X, clientBufferPoint.Y + 40);
+            graphics.DrawString($"ClientView: {this.MyCameraInfo.ClientBuffer.Width}, {this.MyCameraInfo.ClientBuffer.Height}", this.FpsFont, Brushes.MediumSlateBlue, clientBufferPoint.X, clientBufferPoint.Y + 40);
             graphics.DrawString($"DrawBuffer: {this.DrawBuffer.Width}, {this.DrawBuffer.Height}", this.FpsFont, Brushes.MediumSlateBlue, clientBufferPoint.X, clientBufferPoint.Y + 60);
 
             // Draw bitmap to buffer
@@ -100,7 +97,7 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
         /// </summary>
         private void DestroyClientBufferGraphics()
         {
-            this.ClientBufferedGraphics.Dispose();
+            this.ClientBufferedGraphics?.Dispose();
             this.ClientBufferedGraphics = default;
         }
 
@@ -112,7 +109,7 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
             this.GraphicsHandle = Graphics.FromHwndInternal(this.HostHandle);
             this.GraphicsHandle.Clear(Color.Black);
             this.ClientViewBufferHandle = this.GraphicsHandle.GetHdc();
-            this.ClientBufferedGraphics = BufferedGraphicsManager.Current.Allocate(this.ClientViewBufferHandle, this.ClientBuffer.ClientRectangle);
+            this.ClientBufferedGraphics = BufferedGraphicsManager.Current.Allocate(this.ClientViewBufferHandle, this.MyCameraInfo.ClientBuffer.ClientRectangle);
             this.ClientBufferedGraphics.Graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
         }
     }
