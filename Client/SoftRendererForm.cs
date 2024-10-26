@@ -29,7 +29,7 @@ namespace SoftRenderer.Client
         /// </summary>
         public SoftRendererForm()
         {
-            this.RasterBase = WindowFactory.RendeZoomrBaseSeed(0) as Rasterizer;
+            this.RasterBase = WindowFactory.RenderBaseSeed(0) as Rasterizer;
             this.RenderBases = [this.RasterBase];
             while (Application.OpenForms.Count >= 1)
             {

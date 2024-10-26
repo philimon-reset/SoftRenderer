@@ -78,10 +78,6 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             if (this.RunGame)
             {
                 graphics.Clear(Color.Black);
-                if (this.SleepTime > 0)
-                {
-                    Thread.Sleep(this.SleepTime);
-                }
 
                 this.DrawWorldAxis();
                 this.DrawGeometry();
