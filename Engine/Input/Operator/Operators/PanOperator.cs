@@ -2,10 +2,12 @@ namespace SoftRenderer.Engine.Input.Operator.Operators
 {
     using System;
     using System.Drawing;
+    using System.Linq;
     using System.Windows.Forms;
     using Camera;
     using Math;
     using Render;
+    using Utility;
 
     /// <summary>
     /// Pan operator.
@@ -21,22 +23,36 @@ namespace SoftRenderer.Engine.Input.Operator.Operators
         {
         }
 
-        private static bool leftClicked = false;
         private static bool rightClicked = false;
+        private CameraInfo? CameraInfo;
+        private Plane CameraPlane;
+
+        private Vector3 MousePositionPlane { get; set; }
 
         private Vector3 MousePosition { get; set; }
 
         /// <inheritdoc/>
         protected override void ControlMousePress(object sender, MouseEventArgs e)
         {
-            this.MousePosition = new Vector3(e.X, e.Y, 0);
+            base.ControlMousePress(sender, e);
             switch (e.Button)
             {
-                case MouseButtons.Left:
-                    leftClicked = true;
-                    break;
                 case MouseButtons.Right:
                     rightClicked = true;
+                    // get camera info.
+                    this.CameraInfo = this.RenderBase.MyCameraInfo;
+
+                    // get plane info.
+                    var planeOrigin = this.GetPlaneOrigin();
+                    var planeDirection = this.CameraInfo.GetEyeVectorDirection();
+                    this.CameraPlane = new Plane(planeOrigin, planeDirection);
+
+                    // get mouse info, change from screen coordinate to world coordinates.
+                    this.MousePosition = Matrix.TransformPoints(this.CameraInfo.Materalization.ViewPerspectiveProjClientMatrixInverse, [new Vector3(e.X, e.Y, 0)]).First();
+                    var mouseRay = this.CameraInfo.GetMouseRay(this.MousePosition);
+
+                    // get plane and mouse position intersection.
+                    this.MousePositionPlane = this.CameraPlane.IntersectionWith(mouseRay);
                     break;
             }
         }
@@ -44,13 +60,15 @@ namespace SoftRenderer.Engine.Input.Operator.Operators
         /// <inheritdoc/>
         protected override void ControlMouseRelease(object sender, MouseEventArgs e)
         {
+            base.ControlMouseRelease(sender, e);
             switch (e.Button)
             {
-                case MouseButtons.Left:
-                    leftClicked = false;
-                    break;
                 case MouseButtons.Right:
                     rightClicked = false;
+                    this.MousePositionPlane = default;
+                    this.MousePosition = default;
+                    this.CameraPlane = default;
+                    this.CameraInfo = default;
                     break;
             }
         }
@@ -58,69 +76,27 @@ namespace SoftRenderer.Engine.Input.Operator.Operators
         /// <inheritdoc/>
         protected override void ControlMouseMove(object sender, MouseEventArgs e)
         {
-            double yaw = 90f;
-            double pitch = 90f;
-            double scale = 0.01f;
-            if (rightClicked)
+            base.ControlMouseMove(sender, e);
+            if (rightClicked && this.CameraInfo is not null)
             {
-                Vector3 direction = new Vector3();
-                Vector3 currentPosition = new Vector3((e.X - this.MousePosition.X) * scale, (this.MousePosition.Y - e.Y) * scale, 0);
-                yaw += currentPosition.X;
-                pitch += currentPosition.Y;
-                if (pitch > 89.0f)
-                {
-                    pitch = 89.0f;
-                }
+                // get mouse info, change from screen coordinate to world coordinates.
+                this.MousePosition = Matrix.TransformPoints(this.CameraInfo.Materalization.ViewPerspectiveProjClientMatrixInverse, [new Vector3(e.X, e.Y, 0)]).First();
+                Console.WriteLine(this.MousePosition);
+                var mouseRay = this.CameraInfo.GetMouseRay(this.MousePosition);
 
-                if (pitch < -89.0f)
-                {
-                    pitch = -89.0f;
-                }
-
-                direction.X = Math.Cos(yaw) * Math.Cos(pitch);
-                direction.Y = Math.Sin(pitch);
-                direction.Z = Math.Sin(yaw) * Math.Cos(pitch);
-                Vector3 cameraFront = currentPosition.GetNormalized;
+                // get plane and mouse position intersection.
+                var mouseIntersection = this.CameraPlane.IntersectionWith(mouseRay);
+                var offset = (mouseIntersection - this.MousePositionPlane) * 100;
                 var cameraInfo = this.RenderBase.MyCameraInfo;
-                cameraInfo.Eye += cameraFront;
-                this.RenderBase.MyCameraInfo = new CameraInfo(cameraInfo, cameraInfo.Projection);
+                cameraInfo.Eye += offset;
+                cameraInfo.Target += offset;
+                this.RenderBase.MyCameraInfo = new CameraInfo(this.CameraInfo, this.CameraInfo.Projection);
             }
         }
 
-        /// <inheritdoc/>
-        protected override void ControlKeyDown(object sender, KeyEventArgs e)
+        private Vector3 GetPlaneOrigin()
         {
-            double scale = 0.05;
-            var cameraMove = new Vector3(0, 0, -1.0f);
-            var cameraInfo = this.RenderBase.MyCameraInfo;
-            switch (e.KeyCode)
-            {
-                case Keys.Up:
-                    cameraInfo.Eye += cameraMove * scale;
-                    break;
-                case Keys.Down:
-                    cameraInfo.Eye -= cameraMove * scale;
-                    break;
-                case Keys.Left:
-                    cameraInfo.Eye -= Vector3.Normalize(cameraInfo.Eye.Cross(cameraMove)) * scale;
-                    break;
-                case Keys.Right:
-                    cameraInfo.Eye -= Vector3.Normalize(cameraMove.Cross(cameraInfo.Eye)) * scale;
-                    break;
-                case Keys.W:
-                    // default scaling
-                    double scaleForward = 1.0 + scale;
-                    var forwardVector = cameraInfo.Eye - cameraInfo.Target;
-                    cameraInfo.Eye += forwardVector - (forwardVector * scaleForward);
-                    break;
-                case Keys.S:
-                    double scaleBackwards = 1 - scale;
-                    var backwardVector = cameraInfo.Eye - cameraInfo.Target;
-                    cameraInfo.Eye += backwardVector - (backwardVector * scaleBackwards);
-                    break;
-            }
-
-            this.RenderBase.MyCameraInfo = new CameraInfo(cameraInfo, cameraInfo.Projection);
+            return this.RenderBase.MyCameraInfo.Target;
         }
     }
 }

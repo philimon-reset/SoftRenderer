@@ -819,6 +819,22 @@ namespace SoftRenderer.Math
             });
         }
 
+        /// <summary>
+        /// Transform each point according to the transformation matrix.
+        /// </summary>
+        /// <param name="transformationMatrix">transformation matrix.</param>
+        /// <param name="vector">vector to be transformed.</param>
+        /// <returns>vector after transformations.</returns>
+        public static Vector3 TransformPoint(Matrix transformationMatrix, Vector3 vector)
+        {
+            Vector4 multipliedVector = transformationMatrix * vector;
+            for (int i = 0; i < 4; i++)
+            {
+                multipliedVector[i] /= multipliedVector.W;
+            }
+            return multipliedVector;
+        }
+
         #endregion
 
         #region operator_overloads

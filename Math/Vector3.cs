@@ -19,7 +19,7 @@ namespace SoftRenderer.Math
     /// <remarks>
     /// This class provides properties and methods to perform vector operations.
     /// </remarks>
-    public class Vector3
+    public readonly record struct Vector3
     {
         #region ctor
 
@@ -110,6 +110,14 @@ namespace SoftRenderer.Math
         }
 
         /// <summary>
+        /// Gets the Zero vector.
+        /// </summary>
+        public static Vector3 Zero
+        {
+            get => new Vector3();
+        }
+
+        /// <summary>
         /// Gets the length of the vector.
         /// </summary>
         public double Length
@@ -121,19 +129,19 @@ namespace SoftRenderer.Math
         }
 
         /// <summary>
-        /// Gets or sets the X coordinate of the vector.
+        /// Gets the X coordinate of the vector.
         /// </summary>
-        public double X { get; set; }
+        public double X { get; }
 
         /// <summary>
-        /// Gets or sets the Y coordinate of the vector.
+        /// Gets the Y coordinate of the vector.
         /// </summary>
-        public double Y { get; set; }
+        public double Y { get; }
 
         /// <summary>
-        /// Gets or sets the Z coordinate of the vector.
+        /// Gets the Z coordinate of the vector.
         /// </summary>
-        public double Z { get; set; }
+        public double Z { get; }
         #endregion
 
         #region operator_overload
@@ -201,10 +209,7 @@ namespace SoftRenderer.Math
         /// <returns>The resulting vector.</returns>
         public static Vector3 operator +(Vector3 vec, Vector3 vec2)
         {
-            Vector3 newVec = new Vector3();
-            newVec.X = vec.X + vec2.X;
-            newVec.Y = vec.Y + vec2.Y;
-            newVec.Z = vec.Z + vec2.Z;
+            Vector3 newVec = new Vector3(vec.X + vec2.X, vec.Y + vec2.Y, vec.Z + vec2.Z);
             return newVec;
         }
 
@@ -216,10 +221,7 @@ namespace SoftRenderer.Math
         /// <returns>The resulting vector.</returns>
         public static Vector3 operator -(Vector3 vec, Vector3 vec2)
         {
-            Vector3 newVec = new Vector3();
-            newVec.X = vec.X - vec2.X;
-            newVec.Y = vec.Y - vec2.Y;
-            newVec.Z = vec.Z - vec2.Z;
+            Vector3 newVec = new Vector3(vec.X - vec2.X, vec.Y - vec2.Y, vec.Z - vec2.Z);
             return newVec;
         }
 
@@ -231,10 +233,7 @@ namespace SoftRenderer.Math
         /// <returns>The resulting vector.</returns>
         public static Vector3 operator /(Vector3 vec, Vector3 vec2)
         {
-            Vector3 newVec = new Vector3();
-            newVec.X = vec.X / vec2.X;
-            newVec.Y = vec.Y / vec2.Y;
-            newVec.Z = vec.Z / vec2.Z;
+            Vector3 newVec = new Vector3(vec.X / vec2.X, vec.Y / vec2.Y, vec.Z / vec2.Z);
             return newVec;
         }
 
@@ -246,10 +245,7 @@ namespace SoftRenderer.Math
         /// <returns>The resulting vector.</returns>
         public static Vector3 operator *(Vector3 vec, Vector3 vec2)
         {
-            Vector3 newVec = new Vector3();
-            newVec.X = vec.X * vec2.X;
-            newVec.Y = vec.Y * vec2.Y;
-            newVec.Z = vec.Z * vec2.Z;
+            Vector3 newVec = new Vector3(vec.X * vec2.X, vec.Y * vec2.Y, vec.Z * vec2.Z);
             return newVec;
         }
 
@@ -308,26 +304,6 @@ namespace SoftRenderer.Math
                 }
 
                 throw new Exception("out of index range.");
-            }
-
-            set
-            {
-                if (i == 0)
-                {
-                    this.X = value;
-                }
-                else if (i == 1)
-                {
-                    this.Y = value;
-                }
-                else if (i == 2)
-                {
-                    this.Z = value;
-                }
-                else
-                {
-                    throw new Exception("out of index range.");
-                }
             }
         }
 
@@ -401,7 +377,6 @@ namespace SoftRenderer.Math
         #endregion
 
         #region vectorOperations
-        
         /// <summary>
         /// Calculates the dot product of two vectors.
         /// </summary>
@@ -424,7 +399,7 @@ namespace SoftRenderer.Math
         public static Vector3 CrossProduct(Vector3 v1, Vector3 v2) => new Vector3((v1.Y * v2.Z) - (v1.Z * v2.Y), (v1.Z * v2.X) - (v1.X * v2.Z), (v1.X * v2.Y) - (v1.Y * v2.X));
 
         /// <summary>
-        /// Calculates the dot product of a single vector
+        /// Calculates the dot product of a single vector.
         /// </summary>
         /// <param name="a">The vector.</param>
         /// <returns>added vector.</returns>
@@ -439,31 +414,29 @@ namespace SoftRenderer.Math
         /// <returns>Vector3 representing the cross product of the two vectors.</returns>
         public Vector3 Cross(Vector3 other) => CrossProduct(this, other);
 
-
         /// <summary>
         /// Reverses the direction of the vector.
         /// </summary>
-        public void Reverse()
+        /// <returns>reversed vector.</returns>
+        public Vector3 Reverse()
         {
-            this.X = -this.X;
-            this.Y = -this.Y;
-            this.Z = -this.Z;
+            return new Vector3(-this.X, -this.Y, -this.Z);
         }
 
         /// <summary>
         /// Scales the vector by the specified factor.
         /// </summary>
         /// <param name="factor">The scaling factor.</param>
-        public void Scale(double factor)
+        /// <returns>scaled vector.</returns>
+        public Vector3 Scale(double factor)
         {
-            this.X *= factor;
-            this.Y *= factor;
-            this.Z *= factor;
+            return new Vector3(this.X * factor, this.Y * factor, this.Z * factor);
         }
 
         /// <summary>
         /// Converts the vector into a unit vector.
         /// </summary>
+        /// <param name="vector"> vector to be normalized.</param>
         /// <returns>True if the vector was successfully converted into a unit vector, otherwise false.</returns>
         public static Vector3 Normalize(Vector3 vector)
         {
@@ -473,39 +446,40 @@ namespace SoftRenderer.Math
                 throw new Exception("To small.");
             }
 
-            vector.X /= len;
-            vector.Y /= len;
-            vector.Z /= len;
-            return vector;
+            Vector3 newVec = new Vector3(vector.X / len, vector.Y / len, vector.Z / len);
+            return newVec;
         }
 
         private static Vector3 VectorOperation(Vector3 vec, char operation, double scalar)
         {
-            Vector3 newVec = new Vector3();
+            double x = 0;
+            double y = 0;
+            double z = 0;
             switch (operation)
             {
                 case '+':
-                    newVec.X = vec.X + scalar;
-                    newVec.Y = vec.Y + scalar;
-                    newVec.Z = vec.Z + scalar;
+                    x = vec.X + scalar;
+                    y = vec.Y + scalar;
+                    z = vec.Z + scalar;
                     break;
                 case '-':
-                    newVec.X = vec.X - scalar;
-                    newVec.Y = vec.Y - scalar;
-                    newVec.Z = vec.Z - scalar;
+                    x = vec.X - scalar;
+                    y = vec.Y - scalar;
+                    z = vec.Z - scalar;
                     break;
                 case '*':
-                    newVec.X = vec.X * scalar;
-                    newVec.Y = vec.Y * scalar;
-                    newVec.Z = vec.Z * scalar;
+                    x = vec.X * scalar;
+                    y = vec.Y * scalar;
+                    z = vec.Z * scalar;
                     break;
                 case '/':
-                    newVec.X = vec.X / scalar;
-                    newVec.Y = vec.Y / scalar;
-                    newVec.Z = vec.Z / scalar;
+                    x = vec.X / scalar;
+                    y = vec.Y / scalar;
+                    z = vec.Z / scalar;
                     break;
             }
 
+            Vector3 newVec = new Vector3(x, y, z);
             return newVec;
         }
 

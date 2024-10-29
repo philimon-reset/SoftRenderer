@@ -189,7 +189,7 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
             {
                 if (from != null)
                 {
-                    this.DrawBuffer.Graphics.DrawLine(pen, (float)from.X, (float)from.Y, (float)pointScreen.X, (float)pointScreen.Y);
+                    this.DrawBuffer.Graphics.DrawLine(pen, (float)from?.X, (float)from?.Y, (float)pointScreen.X, (float)pointScreen.Y);
                 }
 
                 from = pointScreen;

@@ -64,7 +64,7 @@ namespace SoftRenderer.Engine.Camera
         public Vector3 Eye { get; set; }
 
         /// <inheritdoc/>
-        public Vector3 Target { get; }
+        public Vector3 Target { get; set; }
 
         /// <inheritdoc/>
         public Vector3 Up { get; }

@@ -62,6 +62,7 @@
     <Compile Include="Engine\Buffers\ClientBuffer.cs" />
     <Compile Include="Engine\Buffers\DrawBuffer.cs" />
     <Compile Include="Engine\Camera\CameraInfo.cs" />
+    <Compile Include="Engine\Camera\CameraInfoEx.cs" />
     <Compile Include="Engine\Camera\ICameraInfo.cs" />
     <Compile Include="Engine\Camera\IProjection.cs" />
     <Compile Include="Engine\Camera\MateralizedCameraInfo.cs" />
@@ -74,8 +75,10 @@
     <Compile Include="Engine\Input\InputPaint.cs" />
     <Compile Include="Engine\Input\Operator\IOperator.cs" />
     <Compile Include="Engine\Input\Operator\Operator.cs" />
+    <Compile Include="Engine\Input\Operator\Operators\MoveOperator.cs" />
     <Compile Include="Engine\Input\Operator\Operators\PanOperator.cs" />
     <Compile Include="Engine\Input\Operator\Operators\ResizeOperator.cs" />
+    <Compile Include="Engine\Input\Operator\Operators\RotateOperator.cs" />
     <Compile Include="Engine\Input\Operator\Operators\ZoomOperator.cs" />
     <Compile Include="Engine\Render\Driver\GDI\RenderBaseGdi.cs" />
     <Compile Include="Engine\Render\IRenderBaseArgs.cs" />
@@ -85,6 +88,8 @@
     <Compile Include="Engine\Render\Technique\RayTracer\RayTracer.cs" />
     <Compile Include="Math\Matrix.cs" />
     <Compile Include="Math\Vector4.cs" />
+    <Compile Include="Utility\Plane.cs" />
+    <Compile Include="Utility\Ray.cs" />
     <Compile Include="Utility\Space.cs" />
     <Compile Include="Utility\Win32\DLL.cs" />
     <Compile Include="Client\WindowFactory.cs" />

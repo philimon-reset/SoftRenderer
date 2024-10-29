@@ -1,6 +1,7 @@
 namespace SoftRenderer.Engine.Camera
 {
     using SoftRenderer.Math;
+    using Utility;
 
     public record Projection(double FovY, double AspectRatio, double Znear, double Zfar)
         : IProjection
@@ -9,6 +10,12 @@ namespace SoftRenderer.Engine.Camera
         public Matrix GetPerspectiveProjectionMatrix()
         {
             return Matrix.PerspectiveMatrix(this.FovY, this.AspectRatio, this.Znear, this.Zfar);
+        }
+
+        /// <inheritdoc/>
+        public Ray GetMouseRay(Vector3 cameraPosition, Vector3 mousePosition)
+        {
+            return new Ray(mousePosition, (mousePosition - cameraPosition).GetNormalized);
         }
 
         /// <inheritdoc/>

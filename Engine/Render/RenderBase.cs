@@ -59,13 +59,15 @@ namespace SoftRenderer.Engine.Render
             var projection = new Projection(fov, (double)this.DrawBuffer.Height / this.DrawBuffer.Width, znear, zfar);
 
             // camera info.
-            this.MyCameraInfo = new CameraInfo(eye, target, Vector3.ZAxis, projection, this.DrawBuffer.Size, clientBuffer);
+            this.MyCameraInfo = new CameraInfo(eye, target, Vector3.YAxis, projection, this.DrawBuffer.Size, clientBuffer);
 
             // Event Hooking.
             this.Operators =[
                 new ResizeOperator(this, this.ResizeHost, this.ResizeClientBuffer),
                 new ZoomOperator(this),
-                new PanOperator(this)
+                new PanOperator(this),
+                new MoveOperator(this),
+                new RotateOperator(this)
             ];
 
             // Initial Resize
