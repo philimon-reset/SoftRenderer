@@ -1,13 +1,13 @@
 namespace SoftRenderer.Engine.Input.Operator.Operators
 {
     using System;
-    using System.Drawing;
     using System.Linq;
     using System.Windows.Forms;
-    using Camera;
-    using Math;
-    using Render;
-    using Utility;
+    using SoftRenderer.Engine.Camera;
+    using SoftRenderer.Engine.Input.Operator;
+    using SoftRenderer.Engine.Render;
+    using SoftRenderer.Math;
+    using SoftRenderer.Utility;
 
     /// <summary>
     /// Pan operator.
@@ -81,7 +81,6 @@ namespace SoftRenderer.Engine.Input.Operator.Operators
             {
                 // get mouse info, change from screen coordinate to world coordinates.
                 this.MousePosition = Matrix.TransformPoints(this.CameraInfo.Materalization.ViewPerspectiveProjClientMatrixInverse, [new Vector3(e.X, e.Y, 0)]).First();
-                Console.WriteLine(this.MousePosition);
                 var mouseRay = this.CameraInfo.GetMouseRay(this.MousePosition);
 
                 // get plane and mouse position intersection.

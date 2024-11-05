@@ -67,6 +67,19 @@
     <Compile Include="Engine\Camera\IProjection.cs" />
     <Compile Include="Engine\Camera\MateralizedCameraInfo.cs" />
     <Compile Include="Engine\Camera\Projection.cs" />
+    <Compile Include="Engine\Geometry\Materials\ICurrentMaterial.cs" />
+    <Compile Include="Engine\Geometry\Materials\IMaterial.cs" />
+    <Compile Include="Engine\Geometry\Materials\Material.cs" />
+    <Compile Include="Engine\Geometry\Primitives\ICurrentPrimitiveBehaviour.cs" />
+    <Compile Include="Engine\Geometry\Primitives\IPrimitive.cs" />
+    <Compile Include="Engine\Geometry\Primitives\Primitive.cs" />
+    <Compile Include="Engine\Geometry\Primitives\PrimitiveBehaviour.cs" />
+    <Compile Include="Engine\Geometry\Primitives\PrimitiveTopology.cs" />
+    <Compile Include="Engine\Geometry\Primitives\PrimitiveWithMaterial.cs" />
+    <Compile Include="Engine\Geometry\Primitives\PrimitiveWithVertex.cs" />
+    <Compile Include="Engine\Geometry\Vertex\IVertex.cs" />
+    <Compile Include="Engine\Geometry\Vertex\IVertexes.cs" />
+    <Compile Include="Engine\Geometry\Vertex\Vertex.cs" />
     <Compile Include="Engine\Input\EventArgs\ISizeChangeArgs.cs" />
     <Compile Include="Engine\Input\EventArgs\SizeChangeArgs.cs" />
     <Compile Include="Engine\Input\IInput.cs" />
@@ -132,6 +145,7 @@
     <Analyzer Include="packages\StyleCop.Analyzers.1.1.118\analyzers\dotnet\cs\StyleCop.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Engine\Geometry\" />
     <Folder Include="Engine\Render\Technique\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

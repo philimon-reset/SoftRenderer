@@ -3,7 +3,7 @@
 // Copyright (c) SoftRenderer. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace SoftRenderer.Client.FPSCounter
+namespace SoftRenderer.Client
 {
     using System;
     using System.Diagnostics;
@@ -11,14 +11,14 @@ namespace SoftRenderer.Client.FPSCounter
     /// <summary>
     /// class to count frames.
     /// </summary>
-    public class FPSCounter : IDisposable
+    public class FpsCounter : IDisposable
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="FPSCounter"/> class.
+        /// Initializes a new instance of the <see cref="FpsCounter"/> class.
         /// Constructor to count frames.
         /// </summary>
-        /// <param name="frameRate">choosen frame rate.</param>
-        public FPSCounter(TimeSpan frameRate)
+        /// <param name="frameRate">chosen frame rate.</param>
+        public FpsCounter(TimeSpan frameRate)
         {
             this.FrameRate = frameRate;
             this.SWFrame = new Stopwatch();

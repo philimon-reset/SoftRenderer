@@ -7,8 +7,7 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
     using System;
     using System.Drawing;
     using System.Drawing.Drawing2D;
-    using SoftRenderer.Client.FPSCounter;
-    using SoftRenderer.Utility.Util;
+    using Client;
 
     /// <summary>
     /// RenderBase abstraction for gdi driver.
@@ -25,7 +24,7 @@ namespace SoftRenderer.Engine.Render.Driver.GDI
     : base(renderBaseArgs)
         {
             // FPS counter.
-            this.RendererFps = new FPSCounter(TimeSpan.FromSeconds(0.5));
+            this.RendererFps = new FpsCounter(TimeSpan.FromSeconds(0.5));
             this.FpsFont = new Font("Arial", 12);
 
             // Double buffer for rendering setup.

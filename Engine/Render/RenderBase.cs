@@ -11,7 +11,7 @@ namespace SoftRenderer.Engine.Render
     using System.Drawing;
     using System.Threading;
     using System.Windows.Forms;
-    using SoftRenderer.Client.FPSCounter;
+    using Client;
     using SoftRenderer.Engine.Buffers;
     using SoftRenderer.Engine.Camera;
     using SoftRenderer.Engine.Input;
@@ -101,7 +101,7 @@ namespace SoftRenderer.Engine.Render
         /// <summary>
         /// Gets or sets total fps data.
         /// </summary>
-        public FPSCounter RendererFps { get; set; }
+        public FpsCounter RendererFps { get; set; }
 
         /// <summary>
         /// Gets start of the render.

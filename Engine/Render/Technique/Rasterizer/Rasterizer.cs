@@ -13,9 +13,9 @@ namespace SoftRenderer.Engine.Render.Technique.Rasterizer
     using System.Linq;
     using System.Threading;
     using System.Windows.Forms;
-    using RCi.Tutorials.Gfx.Mathematics;
     using SoftRenderer.Engine.Render.Driver.GDI;
     using SoftRenderer.Math;
+    using Utility;
 
     /// <summary>
     /// Rasterizer Render Port.

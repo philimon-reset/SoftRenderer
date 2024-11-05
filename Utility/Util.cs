@@ -3,7 +3,7 @@
 // Copyright (c) SoftEngine. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-namespace SoftRenderer.Utility.Util
+namespace SoftRenderer.Utility
 {
     using System;
     using System.Drawing;

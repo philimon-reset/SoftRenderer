@@ -1,10 +1,13 @@
 namespace SoftRenderer.Engine.Input.Operator.Operators
 {
     using System.Windows.Forms;
-    using Camera;
-    using Math;
-    using Render;
+    using SoftRenderer.Engine.Camera;
+    using SoftRenderer.Engine.Render;
+    using SoftRenderer.Math;
 
+    /// <summary>
+    /// Move Operator class.
+    /// </summary>
     public class MoveOperator : Operator
     {
         /// <summary>

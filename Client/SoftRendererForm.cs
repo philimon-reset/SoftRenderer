@@ -9,11 +9,8 @@ namespace SoftRenderer.Client
 {
     using System;
     using System.Collections.Generic;
-    using System.Threading;
     using System.Windows.Forms;
-    using Engine.Render;
-    using Math;
-    using SoftRenderer.Engine;
+    using SoftRenderer.Engine.Render;
     using SoftRenderer.Engine.Render.Technique.Canvas;
     using SoftRenderer.Engine.Render.Technique.Rasterizer;
     using SoftRenderer.Engine.Render.Technique.RayTracer;
