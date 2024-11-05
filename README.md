@@ -20,7 +20,9 @@ This project is a 3D rendering engine implemented in pure C#, currently supporti
 
 ### Prerequisites
 
-- [.NET Core SDK 6.0 or higher](https://dotnet.microsoft.com/download/dotnet/6.0)
+- [.NET FrameWork SDK 4.8 or higher](https://dotnet.microsoft.com/download/dotnet/6.0)
+- StyleCop Analyzer 1.11.8 or higher
+- .NET FrameWork SDK 4.8 developer pack
 - A text editor or IDE (Visual Studio or JetBrains Rider recommended)
 
 ### Steps to Install
@@ -50,9 +52,9 @@ This project is a 3D rendering engine implemented in pure C#, currently supporti
     dotnet run
     ```
 
-## Usage
+## Future Usage
 
-### Running the Rasterizer
+### Running the Rasterizer  (In Progress)
 
 The rasterizer renders the scene in real-time. By default, uploaded `.ply` files are automatically rendered using the rasterizer.
 
