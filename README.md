@@ -7,7 +7,7 @@ This project is a 3D rendering engine implemented in pure C#, currently supporti
 ### Key Features
 
 - **Rasterizer**: Implements a real-time renderer using techniques such as z-buffering, shading, and texturing.
-- **Model Upload**: Supports loading 3D models in `.ply` format for visualization. Uploaded models are automatically rendered using the rasterizer.
+- **Model Upload**: Supports loading 3D models in `.obj` format for visualization. Uploaded models are automatically rendered using the rasterizer.
 
 ## Table of Contents
 
@@ -56,7 +56,7 @@ This project is a 3D rendering engine implemented in pure C#, currently supporti
 
 ### Running the Rasterizer  (In Progress)
 
-The rasterizer renders the scene in real-time. By default, uploaded `.ply` files are automatically rendered using the rasterizer.
+The rasterizer renders the scene in real-time. By default, uploaded `.obj` files are automatically rendered using the rasterizer.
 
 ```bash
 dotnet run -- -rasterize
@@ -64,10 +64,10 @@ dotnet run -- -rasterize
 
 ### Configuration Options
 
-- **Input Model**: Provide a `.ply` file to load a custom 3D model.
+- **Input Model**: Provide a `.obj` file to load a custom 3D model.
 
     ```bash
-    dotnet run -- -rasterize -input model.ply
+    dotnet run -- -rasterize -input model.obj
     ```
 
 - **Resolution**: Specify output resolution.
