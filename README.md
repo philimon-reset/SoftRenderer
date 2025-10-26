@@ -2,6 +2,10 @@
 
 ## Overview
 
+
+https://github.com/user-attachments/assets/c66e78fa-6921-4dc6-b3a3-c682fcdeaf0b
+
+
 This project is a 3D rendering engine implemented in pure C#, currently supporting **rasterization** as the main rendering technique. The goal is to provide an efficient and flexible renderer that can showcase real-time graphics using a rasterizer.
 
 ### Key Features
@@ -21,7 +25,6 @@ This project is a 3D rendering engine implemented in pure C#, currently supporti
 ### Prerequisites
 
 - [.NET FrameWork SDK 4.8 or higher](https://dotnet.microsoft.com/download/dotnet/6.0)
-- StyleCop Analyzer 1.11.8 or higher
 - .NET FrameWork SDK 4.8 developer pack
 - A text editor or IDE (Visual Studio or JetBrains Rider recommended)
 
